@@ -12,6 +12,6 @@
     "allowSyntheticDefaultImports": true,
     "types": ["vite/client", "jest", "node"]
   },
-  "include": ["src"],
+  "include": ["src", "tests/unit"],
   "exclude": []
 }
