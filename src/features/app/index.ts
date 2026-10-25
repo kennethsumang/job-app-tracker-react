@@ -1,0 +1,1 @@
+export { appPaths, appRoutes } from './routes'

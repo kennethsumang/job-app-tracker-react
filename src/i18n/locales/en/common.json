@@ -1,0 +1,29 @@
+{
+  "app": {
+    "name": "Job App Tracker",
+    "description": "Track every application, interview, and follow-up in one place."
+  },
+  "navigation": {
+    "primary": "Primary navigation",
+    "home": "Home",
+    "applications": "Applications",
+    "skipToContent": "Skip to content"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "status": {
+    "loading": "Loading…"
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you are looking for does not exist or has moved.",
+      "backToApplications": "Back to applications"
+    },
+    "unexpected": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred. Please try again."
+    }
+  }
+}

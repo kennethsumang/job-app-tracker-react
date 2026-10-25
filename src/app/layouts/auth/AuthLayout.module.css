@@ -1,0 +1,10 @@
+.root {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.root:focus {
+  outline: none;
+}

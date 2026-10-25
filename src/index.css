@@ -1,0 +1,68 @@
+:root {
+  --font-geist-sans: 'Geist Variable', system-ui, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  /* Surface tokens used by CSS modules. MUI owns the base body typography and
+     colors through CssBaseline and the theme in `app/providers/MuiProvider`. */
+  --color-bg: #ffffff;
+  --color-surface: #f7f6f9;
+  --color-text: #1c1a21;
+  --color-muted: #615b6b;
+  --color-border: #e4e1e8;
+  --color-accent: #8b2fe0;
+  --color-accent-contrast: #ffffff;
+  --radius-md: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #141317;
+    --color-surface: #1d1b22;
+    --color-text: #f0edf4;
+    --color-muted: #a49eae;
+    --color-border: #302c38;
+    --color-accent: #c084fc;
+    --color-accent-contrast: #1a1023;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 20rem;
+  min-height: 100svh;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

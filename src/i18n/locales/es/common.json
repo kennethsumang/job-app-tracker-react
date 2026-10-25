@@ -1,0 +1,29 @@
+{
+  "app": {
+    "name": "Job App Tracker",
+    "description": "Gestiona cada candidatura, entrevista y seguimiento en un solo lugar."
+  },
+  "navigation": {
+    "primary": "Navegación principal",
+    "home": "Inicio",
+    "applications": "Candidaturas",
+    "skipToContent": "Saltar al contenido"
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "status": {
+    "loading": "Cargando…"
+  },
+  "errors": {
+    "notFound": {
+      "title": "Página no encontrada",
+      "description": "La página que buscas no existe o se ha movido.",
+      "backToApplications": "Volver a las candidaturas"
+    },
+    "unexpected": {
+      "title": "Algo salió mal",
+      "description": "Se produjo un error inesperado. Inténtalo de nuevo."
+    }
+  }
+}

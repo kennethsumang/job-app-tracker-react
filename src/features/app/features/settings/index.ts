@@ -1,0 +1,1 @@
+export { settingsPaths, settingsRoutes } from './routes'
