@@ -54,3 +54,9 @@ vite.config.ts.timestamp-*
 # Lint
 .oxlintcache
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
