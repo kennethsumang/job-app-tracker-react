@@ -15,11 +15,18 @@ module.exports = {
     ],
   },
   setupFilesAfterEnv: ['@testing-library/jest-dom'],
+  // Only business logic that is expected to have unit tests. Pages,
+  // components, layouts, providers, routes, hooks and CSS are covered by
+  // type-checking/Playwright instead of Jest.
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.test.{ts,tsx}',
+    'src/lib/**/*.ts',
+    'src/features/**/services/**/*.ts',
+    'src/features/**/store/**/*.ts',
+    'src/features/**/validators/**/*.ts',
+    'src/features/core/**/*.ts',
+    'src/i18n/config.ts',
+    'src/i18n/language.ts',
     '!src/**/*.d.ts',
-    '!src/main.tsx',
   ],
   coverageDirectory: 'coverage',
   coverageProvider: 'v8',
