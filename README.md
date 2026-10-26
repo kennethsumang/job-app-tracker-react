@@ -6,11 +6,30 @@ router) and translations by i18next + react-i18next.
 ## Commands
 
 ```bash
-yarn dev       # start the dev server
-yarn build     # type-check (tsc -b) and build for production
-yarn preview   # preview the production build
-yarn lint      # run oxlint
+yarn dev         # start the dev server
+yarn build       # type-check (tsc -b) and build for production
+yarn preview     # preview the production build
+yarn lint        # run oxlint
+yarn test        # run Jest unit tests
+yarn test:e2e    # run the Playwright end-to-end suite
 ```
+
+### End-to-end tests
+
+Playwright specs live in `tests/e2e` and run against the Vite dev server with
+every `/api` request mocked in the browser, so no backend or database is needed:
+
+```bash
+yarn test:e2e                    # headless Chromium (default)
+E2E_BROWSERS=firefox,webkit yarn test:e2e
+yarn test:e2e:ui                 # Playwright UI mode
+yarn test:e2e:headed             # watch the browser
+E2E_BASE_URL=https://… yarn test:e2e   # test an existing deployment
+```
+
+See [`tests/e2e/README.md`](tests/e2e/README.md) for the fixture, page-object
+and mock conventions.
+
 
 ## Project structure
 

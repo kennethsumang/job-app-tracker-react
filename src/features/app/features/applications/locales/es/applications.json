@@ -1,4 +1,197 @@
 {
   "title": "Aplicaciones",
-  "empty": "Todavía no hay aplicaciones. Añade la primera para empezar a seguir su progreso."
+  "search": {
+    "placeholder": "Buscar empresa o puesto…",
+    "ariaLabel": "Buscar aplicaciones",
+    "clear": "Borrar búsqueda"
+  },
+  "filters": {
+    "title": "Filtros",
+    "open": "Abrir filtros",
+    "status": "Estado",
+    "includeDeleted": "Incluir aplicaciones eliminadas",
+    "apply": "Aplicar filtros",
+    "clearAll": "Borrar todos los filtros"
+  },
+  "statuses": {
+    "DRAFT": "Borrador",
+    "APPLIED": "Enviada",
+    "SCREENING": "Cribado",
+    "INTERVIEW": "Entrevista",
+    "TECHNICAL_INTERVIEW": "Entrevista técnica",
+    "FINAL_INTERVIEW": "Entrevista final",
+    "OFFER": "Oferta",
+    "ACCEPTED": "Aceptada",
+    "REJECTED": "Rechazada",
+    "WITHDRAWN": "Retirada"
+  },
+  "employmentTypes": {
+    "FULL_TIME": "Jornada completa",
+    "PART_TIME": "Media jornada",
+    "CONTRACT": "Contrato",
+    "INTERNSHIP": "Prácticas",
+    "TEMPORARY": "Temporal",
+    "FREELANCE": "Freelance"
+  },
+  "workplaceTypes": {
+    "REMOTE": "Remoto",
+    "HYBRID": "Híbrido",
+    "ONSITE": "Presencial"
+  },
+  "card": {
+    "view": "Ver detalles de {{company}}",
+    "appliedOn": "Enviada el {{date}}",
+    "createdOn": "Creada el {{date}}",
+    "deletedOn": "Eliminada el {{date}}",
+    "edit": "Editar aplicación",
+    "delete": "Eliminar aplicación",
+    "restore": "Restaurar aplicación",
+    "permanentDelete": "Eliminar aplicación definitivamente"
+  },
+  "list": {
+    "loading": "Cargando aplicaciones",
+    "error": "No se pudieron cargar las aplicaciones.",
+    "retry": "Reintentar",
+    "empty": "Todavía no hay aplicaciones.",
+    "emptyDeleted": "No se encontraron aplicaciones eliminadas.",
+    "emptyHint": "Pulsa el botón + para añadir tu primera aplicación.",
+    "pagination": "Páginas de aplicaciones"
+  },
+  "form": {
+    "createTitle": "Nueva aplicación",
+    "editTitle": "Editar aplicación",
+    "steps": {
+      "basics": "Básicos",
+      "details": "Detalles"
+    },
+    "stepHints": {
+      "basics": "Paso 1 — Básicos",
+      "details": "Paso 2 — Detalles"
+    },
+    "fields": {
+      "companyName": "Nombre de la empresa",
+      "companyNamePlaceholder": "p. ej. Google",
+      "positionTitle": "Puesto",
+      "positionTitlePlaceholder": "p. ej. Ingeniero de software",
+      "employmentType": "Tipo de jornada",
+      "workplaceType": "Modalidad",
+      "none": "Ninguno",
+      "location": "Ubicación",
+      "locationPlaceholder": "Ciudad, país",
+      "website": "Web de la empresa",
+      "websitePlaceholder": "https://ejemplo.com",
+      "salaryMin": "Salario mínimo",
+      "salaryMax": "Salario máximo",
+      "currency": "Moneda",
+      "notes": "Notas"
+    },
+    "actions": {
+      "back": "Atrás",
+      "cancel": "Cancelar",
+      "next": "Siguiente",
+      "save": "Guardar",
+      "create": "Crear"
+    }
+  },
+  "deleteDialog": {
+    "title": "¿Eliminar la aplicación?",
+    "permanentTitle": "¿Eliminar la aplicación definitivamente?",
+    "body": "¿Seguro que quieres eliminar la aplicación de \"{{company}}\"? Podrás restaurarla más adelante.",
+    "permanentBody": "Esto eliminará definitivamente la aplicación de \"{{company}}\". Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar",
+    "permanentConfirm": "Eliminar definitivamente"
+  },
+  "messages": {
+    "created": "Aplicación creada.",
+    "createFailed": "No se pudo crear la aplicación.",
+    "updated": "Aplicación actualizada.",
+    "updateFailed": "No se pudo actualizar la aplicación.",
+    "deleted": "Aplicación eliminada.",
+    "deleteFailed": "No se pudo eliminar la aplicación.",
+    "restored": "Aplicación restaurada.",
+    "restoreFailed": "No se pudo restaurar la aplicación.",
+    "permanentlyDeleted": "Aplicación eliminada definitivamente.",
+    "permanentDeleteFailed": "No se pudo eliminar la aplicación definitivamente.",
+    "statusUpdated": "Estado actualizado.",
+    "statusUpdateFailed": "No se pudo actualizar el estado.",
+    "interviewCreated": "Entrevista añadida.",
+    "interviewCreateFailed": "No se pudo añadir la entrevista.",
+    "interviewUpdated": "Entrevista actualizada.",
+    "interviewUpdateFailed": "No se pudo actualizar la entrevista.",
+    "interviewDeleted": "Entrevista eliminada.",
+    "interviewDeleteFailed": "No se pudo eliminar la entrevista."
+  },
+  "fab": {
+    "label": "Añadir aplicación",
+    "tooltip": "Añadir aplicación"
+  },
+  "detail": {
+    "title": "Detalles de la aplicación",
+    "back": "Volver a las aplicaciones",
+    "loading": "Cargando aplicación",
+    "loadError": "No se pudo cargar la aplicación.",
+    "loadErrorHint": "Comprueba tu conexión e inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "deletedBanner": "Esta aplicación está eliminada. Restáurala para seguir su progreso.",
+    "applied": "Enviada",
+    "created": "Creada",
+    "location": "Ubicación",
+    "website": "Web",
+    "salary": "Salario",
+    "salaryRange": "{{currency}} {{min}} – {{max}}",
+    "salaryFrom": "{{currency}} {{min}}+",
+    "salaryUpTo": "{{currency}} hasta {{max}}",
+    "notes": "Notas",
+    "edit": "Editar aplicación",
+    "delete": "Eliminar aplicación",
+    "restore": "Restaurar aplicación",
+    "permanentDelete": "Eliminar definitivamente",
+    "changeStatus": "Cambiar estado"
+  },
+  "interviews": {
+    "title": "Entrevistas",
+    "add": "Añadir",
+    "addInterview": "Añadir entrevista",
+    "cardCaption": "Entrevista",
+    "loading": "Cargando entrevistas",
+    "loadError": "No se pudieron cargar las entrevistas.",
+    "empty": "Todavía no hay entrevistas",
+    "edit": "Editar entrevista",
+    "editLabel": "Editar entrevista de {{type}}",
+    "delete": "Eliminar entrevista",
+    "deleteLabel": "Eliminar entrevista de {{type}}",
+    "scheduledAt": "{{date}} ({{timezone}})",
+    "types": {
+      "SCREENING": "Cribado",
+      "PHONE": "Teléfono",
+      "TECHNICAL": "Técnica",
+      "FINAL": "Ronda final",
+      "HR": "RR. HH.",
+      "OTHER": "Otra"
+    },
+    "form": {
+      "createTitle": "Añadir entrevista",
+      "editTitle": "Editar entrevista",
+      "type": "Tipo de entrevista",
+      "scheduledAt": "Fecha y hora programadas",
+      "timezone": "Zona horaria",
+      "location": "Ubicación",
+      "locationPlaceholder": "p. ej. Google Meet, Teams, Presencial",
+      "notes": "Notas",
+      "notesPlaceholder": "Notas de preparación…",
+      "scheduledAtRequired": "La fecha y hora son obligatorias.",
+      "cancel": "Cancelar",
+      "create": "Añadir entrevista",
+      "save": "Guardar cambios"
+    }
+  },
+  "statusDialog": {
+    "title": "Cambiar estado",
+    "newStatus": "Nuevo estado",
+    "changedOn": "Fecha del cambio",
+    "changedOnRequired": "La fecha del cambio es obligatoria.",
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  }
 }

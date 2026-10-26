@@ -1,4 +1,197 @@
 {
   "title": "Applications",
-  "empty": "No applications yet. Add your first one to start tracking its progress."
+  "search": {
+    "placeholder": "Search company or position…",
+    "ariaLabel": "Search applications",
+    "clear": "Clear search"
+  },
+  "filters": {
+    "title": "Filters",
+    "open": "Open filters",
+    "status": "Status",
+    "includeDeleted": "Include deleted applications",
+    "apply": "Apply filters",
+    "clearAll": "Clear all filters"
+  },
+  "statuses": {
+    "DRAFT": "Draft",
+    "APPLIED": "Applied",
+    "SCREENING": "Screening",
+    "INTERVIEW": "Interview",
+    "TECHNICAL_INTERVIEW": "Technical interview",
+    "FINAL_INTERVIEW": "Final interview",
+    "OFFER": "Offer",
+    "ACCEPTED": "Accepted",
+    "REJECTED": "Rejected",
+    "WITHDRAWN": "Withdrawn"
+  },
+  "employmentTypes": {
+    "FULL_TIME": "Full time",
+    "PART_TIME": "Part time",
+    "CONTRACT": "Contract",
+    "INTERNSHIP": "Internship",
+    "TEMPORARY": "Temporary",
+    "FREELANCE": "Freelance"
+  },
+  "workplaceTypes": {
+    "REMOTE": "Remote",
+    "HYBRID": "Hybrid",
+    "ONSITE": "On-site"
+  },
+  "card": {
+    "view": "View details for {{company}}",
+    "appliedOn": "Applied {{date}}",
+    "createdOn": "Created {{date}}",
+    "deletedOn": "Deleted {{date}}",
+    "edit": "Edit application",
+    "delete": "Delete application",
+    "restore": "Restore application",
+    "permanentDelete": "Permanently delete application"
+  },
+  "list": {
+    "loading": "Loading applications",
+    "error": "Failed to load applications.",
+    "retry": "Try again",
+    "empty": "No applications yet.",
+    "emptyDeleted": "No deleted applications found.",
+    "emptyHint": "Click the + button to add your first application.",
+    "pagination": "Application pages"
+  },
+  "form": {
+    "createTitle": "New Application",
+    "editTitle": "Edit Application",
+    "steps": {
+      "basics": "Basics",
+      "details": "Details"
+    },
+    "stepHints": {
+      "basics": "Step 1 — Basics",
+      "details": "Step 2 — Details"
+    },
+    "fields": {
+      "companyName": "Company name",
+      "companyNamePlaceholder": "e.g. Google",
+      "positionTitle": "Position title",
+      "positionTitlePlaceholder": "e.g. Software Engineer",
+      "employmentType": "Employment type",
+      "workplaceType": "Workplace",
+      "none": "None",
+      "location": "Location",
+      "locationPlaceholder": "City, Country",
+      "website": "Company website",
+      "websitePlaceholder": "https://example.com",
+      "salaryMin": "Salary min",
+      "salaryMax": "Salary max",
+      "currency": "Currency",
+      "notes": "Notes"
+    },
+    "actions": {
+      "back": "Back",
+      "cancel": "Cancel",
+      "next": "Next",
+      "save": "Save",
+      "create": "Create"
+    }
+  },
+  "deleteDialog": {
+    "title": "Delete application?",
+    "permanentTitle": "Permanently delete application?",
+    "body": "Are you sure you want to delete the application for \"{{company}}\"? You can restore it later.",
+    "permanentBody": "This will permanently remove the application for \"{{company}}\". This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "permanentConfirm": "Delete forever"
+  },
+  "messages": {
+    "created": "Application created.",
+    "createFailed": "Failed to create application.",
+    "updated": "Application updated.",
+    "updateFailed": "Failed to update application.",
+    "deleted": "Application deleted.",
+    "deleteFailed": "Failed to delete application.",
+    "restored": "Application restored.",
+    "restoreFailed": "Failed to restore application.",
+    "permanentlyDeleted": "Application permanently deleted.",
+    "permanentDeleteFailed": "Failed to permanently delete application.",
+    "statusUpdated": "Status updated.",
+    "statusUpdateFailed": "Failed to update the status.",
+    "interviewCreated": "Interview added.",
+    "interviewCreateFailed": "Failed to add the interview.",
+    "interviewUpdated": "Interview updated.",
+    "interviewUpdateFailed": "Failed to update the interview.",
+    "interviewDeleted": "Interview removed.",
+    "interviewDeleteFailed": "Failed to delete the interview."
+  },
+  "fab": {
+    "label": "Add application",
+    "tooltip": "Add application"
+  },
+  "detail": {
+    "title": "Application details",
+    "back": "Back to applications",
+    "loading": "Loading application",
+    "loadError": "Failed to load application.",
+    "loadErrorHint": "Check your connection and try again.",
+    "retry": "Try again",
+    "deletedBanner": "This application is deleted. Restore it to keep tracking it.",
+    "applied": "Applied",
+    "created": "Created",
+    "location": "Location",
+    "website": "Website",
+    "salary": "Salary",
+    "salaryRange": "{{currency}} {{min}} – {{max}}",
+    "salaryFrom": "{{currency}} {{min}}+",
+    "salaryUpTo": "{{currency}} up to {{max}}",
+    "notes": "Notes",
+    "edit": "Edit application",
+    "delete": "Delete application",
+    "restore": "Restore application",
+    "permanentDelete": "Delete forever",
+    "changeStatus": "Change status"
+  },
+  "interviews": {
+    "title": "Interviews",
+    "add": "Add",
+    "addInterview": "Add interview",
+    "cardCaption": "Interview",
+    "loading": "Loading interviews",
+    "loadError": "Could not load interviews.",
+    "empty": "No interviews yet",
+    "edit": "Edit interview",
+    "editLabel": "Edit {{type}} interview",
+    "delete": "Delete interview",
+    "deleteLabel": "Delete {{type}} interview",
+    "scheduledAt": "{{date}} ({{timezone}})",
+    "types": {
+      "SCREENING": "Screening",
+      "PHONE": "Phone",
+      "TECHNICAL": "Technical",
+      "FINAL": "Final round",
+      "HR": "HR",
+      "OTHER": "Other"
+    },
+    "form": {
+      "createTitle": "Add Interview",
+      "editTitle": "Edit Interview",
+      "type": "Interview type",
+      "scheduledAt": "Scheduled date & time",
+      "timezone": "Timezone",
+      "location": "Location",
+      "locationPlaceholder": "e.g. Google Meet, Teams, On-site",
+      "notes": "Notes",
+      "notesPlaceholder": "Preparation notes…",
+      "scheduledAtRequired": "Scheduled date & time is required.",
+      "cancel": "Cancel",
+      "create": "Add interview",
+      "save": "Save changes"
+    }
+  },
+  "statusDialog": {
+    "title": "Change status",
+    "newStatus": "New status",
+    "changedOn": "Changed on",
+    "changedOnRequired": "Changed on is required.",
+    "cancel": "Cancel",
+    "save": "Save"
+  }
 }

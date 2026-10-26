@@ -1,79 +1,90 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type Project } from '@playwright/test'
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
+ * Playwright configuration for the Job App Tracker React app.
+ *
+ * The E2E suite runs against the Vite dev server and mocks every `/api`
+ * request from inside the browser (see `tests/e2e/mocks`). That keeps the tests
+ * deterministic, hermetic and independent from the NestJS API, its database and
+ * its rate limiter, while still exercising the real router, auth provider,
+ * react-query wiring and MUI rendering.
+ *
+ * Environment overrides:
+ * - `E2E_BASE_URL`   — test an already-running deployment (disables `webServer`).
+ * - `E2E_WEB_SERVER` — set to `off` to disable the managed dev server.
+ * - `E2E_PORT`       — port used for the managed dev server (default 5173).
+ * - `E2E_BROWSERS`   — comma-separated project list (default `chromium`).
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+const PORT = Number(process.env.E2E_PORT ?? 5173)
+const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`
+const IS_CI = Boolean(process.env.CI)
+const MANAGE_WEB_SERVER =
+  !process.env.E2E_BASE_URL && process.env.E2E_WEB_SERVER !== 'off'
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+/** Maps the `E2E_BROWSERS` values onto Playwright device descriptors. */
+function resolveDevice(browser: string) {
+  switch (browser) {
+    case 'firefox':
+      return devices['Desktop Firefox']
+    case 'webkit':
+      return devices['Desktop Safari']
+    default:
+      return devices['Desktop Chrome']
+  }
+}
+
+const BROWSERS = (process.env.E2E_BROWSERS ?? 'chromium')
+  .split(',')
+  .map((browser) => browser.trim())
+  .filter(Boolean)
+
+const projects: Project[] = BROWSERS.map((browser) => ({
+  name: browser,
+  use: { ...resolveDevice(browser) },
+}))
+
 export default defineConfig({
   testDir: './tests/e2e',
-  /* Run tests in files in parallel */
+  testMatch: '**/*.spec.ts',
+  /* Every spec gets an isolated browser context, so specs are safe to parallelise. */
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+  /* Fail the build on CI if `test.only` was left in the source code. */
+  forbidOnly: IS_CI,
+  retries: IS_CI ? 2 : 0,
+  workers: IS_CI ? 2 : undefined,
+  /* Artifacts are git-ignored (see .gitignore). */
+  outputDir: './test-results',
+  reporter: IS_CI
+    ? [['github'], ['html', { open: 'never' }], ['list']]
+    : [['html', { open: 'never' }], ['list']],
+  globalSetup: './tests/e2e/global-setup.ts',
+  /* Auth flows are UI-driven; a 5s UI assertion budget keeps failures fast. */
+  expect: {
+    timeout: 5_000,
   },
-
-  /* Configure projects for major browsers */
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
-  ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
-});
+  use: {
+    baseURL: BASE_URL,
+    /* Pin locale/timezone: the app derives its language from `navigator` and
+     * renders dayjs/Intl formatted dates, so an unpinned environment could
+     * render Spanish copy or shift interview times. */
+    locale: 'en-US',
+    timezoneId: 'UTC',
+    /* Fail fast on hung selectors, but allow slow first paint in dev. */
+    actionTimeout: 10_000,
+    navigationTimeout: 20_000,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+  projects,
+  webServer: MANAGE_WEB_SERVER
+    ? {
+        command: `yarn dev --port ${PORT} --strictPort`,
+        url: BASE_URL,
+        reuseExistingServer: !IS_CI,
+        timeout: 120_000,
+        stdout: 'pipe',
+        stderr: 'pipe',
+      }
+    : undefined,
+})

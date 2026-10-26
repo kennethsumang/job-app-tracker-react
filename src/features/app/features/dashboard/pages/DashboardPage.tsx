@@ -104,6 +104,11 @@ export function DashboardPage() {
           <UpcomingInterviewCard
             interview={upcomingInterview}
             application={upcomingApplication}
+            onClick={() =>
+              void navigate(
+                applicationsPaths.detail(upcomingInterview.applicationId)
+              )
+            }
           />
         </Box>
       )}

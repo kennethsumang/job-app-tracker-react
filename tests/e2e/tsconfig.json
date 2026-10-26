@@ -1,0 +1,11 @@
+{
+  // Editor/language-server project for the Playwright E2E suite. Mirrors the
+  // app compiler options (bundler resolution, `@/*` alias, strict flags) and
+  // adds Node globals for Playwright's configuration and fixtures. It is not
+  // referenced by the root tsconfig, so `yarn build` is unaffected.
+  "extends": "../../tsconfig.app.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["./**/*.ts"]
+}
