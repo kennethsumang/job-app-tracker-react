@@ -1,0 +1,13 @@
+{
+  // Editor/language-server project for unit tests. `tsconfig.test.json` is
+  // only consumed by ts-jest (CommonJS transpilation, no type-check), so it
+  // can't serve as the TS project for these files. This config mirrors the
+  // app compiler options (bundler resolution, `@/*` alias) and adds Jest
+  // globals. It is not referenced by the root tsconfig, so `yarn build` (and
+  // the emitted bundle) is unaffected.
+  "extends": "../tsconfig.app.json",
+  "compilerOptions": {
+    "types": ["vite/client", "jest", "node"]
+  },
+  "include": ["./unit"]
+}
