@@ -62,9 +62,8 @@ function toIsoTimestamp(value: string): string {
 /**
  * Dialog that changes the status of an application and the date it happened.
  *
- * The status is the only thing updated here; the status changelog is not
- * displayed (or ported) yet. Mount it with a `key` per opening: the initial
- * state is taken from the props on mount.
+ * Mount it with a `key` per opening: the initial state is taken from the props
+ * on mount.
  */
 export function StatusChangeDialog({
   open,

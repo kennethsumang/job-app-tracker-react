@@ -197,5 +197,11 @@
     "changedOnRequired": "Changed on is required.",
     "cancel": "Cancel",
     "save": "Save"
+  },
+  "statusHistory": {
+    "title": "Status history",
+    "loading": "Loading status history",
+    "loadError": "Could not load status history.",
+    "empty": "No status changes recorded yet."
   }
 }

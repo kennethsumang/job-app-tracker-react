@@ -3,6 +3,7 @@ import { applicationsKeys } from "@/features/app/features/applications/hooks/use
 import {
   applicationsService,
   type JobApplication,
+  type JobApplicationStatusChangelog,
 } from "@/features/app/features/applications/services/applications.service";
 
 /** Extra TanStack Query options accepted by {@link useApplication}. */
@@ -21,5 +22,14 @@ export function useApplication(
     queryFn: () => applicationsService.fetchApplication(id),
     enabled: Boolean(id),
     ...options,
+  });
+}
+
+/** Fetches the status history for an application. */
+export function useStatusChangelogs(applicationId: string) {
+  return useQuery<JobApplicationStatusChangelog[]>({
+    queryKey: ["status-changelogs", applicationId],
+    queryFn: () => applicationsService.fetchStatusChangelogs(applicationId),
+    enabled: Boolean(applicationId),
   });
 }

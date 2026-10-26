@@ -26,6 +26,7 @@ export type {
   CreateApplicationPayload,
   EmploymentType,
   JobApplication,
+  JobApplicationStatusChangelog,
   JobApplicationStatus,
   UpdateApplicationPayload,
   UpdateApplicationStatusPayload,

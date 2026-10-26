@@ -20,6 +20,7 @@ import { ApplicationDetailNotes } from '../components/ApplicationDetailNotes'
 import { ApplicationFormDialog } from '../components/ApplicationFormDialog'
 import { DeleteConfirmationDialog } from '../components/DeleteConfirmationDialog'
 import { InterviewsSection } from '../components/InterviewsSection'
+import { StatusChangeTimeline } from '../components/StatusChangeTimeline'
 import { StatusChangeDialog } from '../components/StatusChangeDialog'
 import { useApplication } from '../hooks/use-application-detail'
 import {
@@ -42,8 +43,7 @@ const SNACKBAR_DURATION_MS = 3000
  * Detail page of a single job application.
  *
  * Mirrors the web app's detail page: top bar with the contextual actions, the
- * application header/information/notes and its interviews. The status changelog
- * timeline is not ported yet, so only the status change action is available.
+ * application header/information/notes, interviews and status history.
  */
 export function ApplicationDetailPage() {
   const { id = '' } = useParams<{ id: string }>()
@@ -270,6 +270,7 @@ export function ApplicationDetailPage() {
             canEdit={!isDeleted}
             onSnackbar={setSnackbar}
           />
+          <StatusChangeTimeline applicationId={application.id} />
         </Box>
       )}
 

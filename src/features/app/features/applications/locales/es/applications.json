@@ -197,5 +197,11 @@
     "changedOnRequired": "La fecha del cambio es obligatoria.",
     "cancel": "Cancelar",
     "save": "Guardar"
+  },
+  "statusHistory": {
+    "title": "Historial de estados",
+    "loading": "Cargando historial de estados",
+    "loadError": "No se pudo cargar el historial de estados.",
+    "empty": "Todavía no hay cambios de estado registrados."
   }
 }

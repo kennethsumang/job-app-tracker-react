@@ -86,8 +86,11 @@ export function useUpdateApplication() {
   >({
     mutationFn: ({ id, payload }) =>
       applicationsService.updateApplication(id, payload),
-    onSuccess: () => {
+    onSuccess: (_data, { id }) => {
       void queryClient.invalidateQueries({ queryKey: applicationsKeys.all });
+      void queryClient.invalidateQueries({
+        queryKey: ["status-changelogs", id],
+      });
     },
     throwOnError: false,
   });
@@ -112,8 +115,11 @@ export function useRestoreApplication() {
 
   return useMutation<JobApplication, Error, string>({
     mutationFn: (id) => applicationsService.restoreApplication(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({ queryKey: applicationsKeys.all });
+      void queryClient.invalidateQueries({
+        queryKey: ["status-changelogs", id],
+      });
     },
     throwOnError: false,
   });
@@ -149,8 +155,11 @@ export function useUpdateApplicationStatus() {
         payload.status,
         payload.changedAt,
       ),
-    onSuccess: () => {
+    onSuccess: (_data, { id }) => {
       void queryClient.invalidateQueries({ queryKey: applicationsKeys.all });
+      void queryClient.invalidateQueries({
+        queryKey: ["status-changelogs", id],
+      });
     },
     throwOnError: false,
   });

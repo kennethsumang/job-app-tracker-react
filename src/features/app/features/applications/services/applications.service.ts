@@ -62,6 +62,15 @@ export interface JobApplication {
   deletedAt: string | null;
 }
 
+/** A recorded transition between two application statuses. */
+export interface JobApplicationStatusChangelog {
+  id: string;
+  jobApplicationId: string;
+  oldStatus: JobApplicationStatus;
+  newStatus: JobApplicationStatus;
+  createdAt: string;
+}
+
 /** Paginated response returned by `GET /applications`. */
 export interface ApplicationsResponse {
   data: JobApplication[];
@@ -161,6 +170,15 @@ class ApplicationsService {
    */
   fetchApplication(id: string): Promise<JobApplication> {
     return api.get<JobApplication>(`/applications/${id}`);
+  }
+
+  /** Fetches the status history for a job application. */
+  fetchStatusChangelogs(
+    id: string,
+  ): Promise<JobApplicationStatusChangelog[]> {
+    return api.get<JobApplicationStatusChangelog[]>(
+      `/applications/${id}/status-changelogs`,
+    );
   }
 
   /**
