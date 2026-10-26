@@ -1,4 +1,5 @@
 export { applicationsPaths, applicationsRoutes } from "./routes";
+export { CreateApplicationFormDialog } from "./components/CreateApplicationFormDialog";
 export {
   DEFAULT_CURRENCY,
   DEFAULT_PAGE_SIZE,

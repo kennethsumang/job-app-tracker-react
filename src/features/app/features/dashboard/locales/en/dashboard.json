@@ -16,6 +16,10 @@
       "subtitle": "Track a new job application"
     }
   },
+  "messages": {
+    "created": "Application added successfully.",
+    "createFailed": "Failed to add application."
+  },
   "upcomingInterview": {
     "sectionLabel": "Upcoming interview",
     "heading": "Next Interview",

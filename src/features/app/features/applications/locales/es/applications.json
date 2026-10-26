@@ -91,6 +91,10 @@
       "next": "Siguiente",
       "save": "Guardar",
       "create": "Crear"
+    },
+    "errors": {
+      "companyName": "El nombre de la empresa es obligatorio.",
+      "positionTitle": "El puesto es obligatorio."
     }
   },
   "deleteDialog": {

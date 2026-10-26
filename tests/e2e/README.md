@@ -41,17 +41,25 @@ tests/e2e/
 ├── pages/
 │   ├── login.page.ts
 │   ├── dashboard.page.ts
+│   ├── applications-list.page.ts
+│   ├── application-detail.page.ts
+│   ├── add-application-dialog.page.ts
 │   └── register.page.ts
-└── specs/auth/
-    ├── login/
-    │   ├── login.spec.ts             # happy paths
-    │   ├── login-validation.spec.ts  # client-side validation
-    │   └── login-errors.spec.ts      # API failure mapping
-    ├── register/
-    │   ├── register.spec.ts             # happy paths
-    │   ├── register-validation.spec.ts  # client-side validation
-    │   └── register-errors.spec.ts      # API failure mapping
-    └── session-guard.spec.ts         # guard, bootstrap, sign-out
+├── specs/
+│   ├── auth/
+│   │   ├── login/
+│   │   │   ├── login.spec.ts             # happy paths
+│   │   │   ├── login-validation.spec.ts  # client-side validation
+│   │   │   └── login-errors.spec.ts      # API failure mapping
+│   │   ├── register/
+│   │   │   ├── register.spec.ts             # happy paths
+│   │   │   ├── register-validation.spec.ts  # client-side validation
+│   │   │   └── register-errors.spec.ts      # API failure mapping
+│   │   └── session-guard.spec.ts         # guard, bootstrap, sign-out
+│   └── dashboard/
+│       ├── dashboard.spec.ts             # widgets, counters, navigation, sign-out
+│       ├── dashboard-errors.spec.ts      # failing counters/interviews/list
+│       └── add-application.spec.ts       # Add Application dialog
 ```
 
 ## Conventions
@@ -60,9 +68,10 @@ tests/e2e/
 - **Page objects** own selectors and copy. Specs never call `page.locator`.
   Selectors are role/label/id based (the app ships no `data-testid`s); inputs use
   their ids because MUI appends the required asterisk to the visible label.
-- **Fixtures over helpers** — `authApi`, `appApi`, `loginPage`, `registerPage`
-  and `dashboardPage` are injected. `authApi`/`appApi` are `auto`, so a spec can
-  never reach the real backend by accident.
+- **Fixtures over helpers** — `authApi`, `appApi`, `loginPage`, `registerPage`,
+  `dashboardPage`, `applicationsListPage` and `applicationDetailPage` are
+  injected. `authApi`/`appApi` are `auto`, so a spec can never reach the real
+  backend by accident.
 - **No arbitrary sleeps** — assert loading states with `expect(locator)` and use
   the mock's `latencyMs` options to make them observable.
 - **Deterministic data** — accounts and applications live in
@@ -85,9 +94,28 @@ limiting, CAPTCHA failure, unverified email, a stricter server-side password
 policy, validation rejection, 5xx and network aborts. Specs assert the
 *humanised* copy produced by `src/lib/auth-errors.ts`, not the raw API message.
 
-`AppDataApiMock` serves `GET /api/applications` (list + count, filtered by the
-repeated `statuses` query key) and `GET /api/interviews/upcoming`, which is what
-the dashboard needs after a successful sign-in.
+`AppDataApiMock` serves what the dashboard and the pages it links to need:
+
+| Request                                  | Behaviour                                                        |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| `GET /api/applications`                  | `{ data, count }` page, filtered by the repeated `statuses` key   |
+| `POST /api/applications`                 | creates (201) and appends to the seed, so counters move          |
+| `GET /api/applications/:id`              | single application, `404` when the id is unknown                  |
+| `GET /api/applications/:id/interviews`   | interviews of that application                                    |
+| `GET /api/interviews/upcoming`           | interviews at/after `from`, sorted, limited by `top`              |
+
+It also offers the knobs the failure/loading specs need:
+
+- `setApplications()` / `setUpcomingInterviews()` replace the seed (the
+  dashboard's counters are derived from `dashboardCounts`, never hardcoded).
+- `setLatency()` delays every response so loading placeholders stay observable.
+- `failApplications()`, `failCreateApplication()`, `failApplicationDetail()` and
+  `failUpcomingInterviews()` inject a `{ status, message }` failure or
+  `'network-error'`; `clearFailures()` restores the happy path (used by the
+  retry tests).
+- `applicationListRequests` / `createRequests` / `upcomingInterviewRequests` log
+  what the UI asked for, so specs can assert the request contract instead of
+  sleeping.
 
 ## Why not a global storage state?
 

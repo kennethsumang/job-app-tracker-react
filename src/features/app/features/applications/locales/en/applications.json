@@ -91,6 +91,10 @@
       "next": "Next",
       "save": "Save",
       "create": "Create"
+    },
+    "errors": {
+      "companyName": "Company name is required.",
+      "positionTitle": "Position title is required."
     }
   },
   "deleteDialog": {

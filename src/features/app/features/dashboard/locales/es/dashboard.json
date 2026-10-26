@@ -16,6 +16,10 @@
       "subtitle": "Registra una nueva candidatura"
     }
   },
+  "messages": {
+    "created": "Candidatura añadida correctamente.",
+    "createFailed": "No se pudo añadir la candidatura."
+  },
   "upcomingInterview": {
     "sectionLabel": "Próxima entrevista",
     "heading": "Próxima entrevista",

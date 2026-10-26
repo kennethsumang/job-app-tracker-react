@@ -87,15 +87,18 @@ export function ApplicationsPage() {
   const restoreMutation = useRestoreApplication()
   const permanentDeleteMutation = usePermanentDeleteApplication()
 
-  // Apply the dashboard's status filter once, then drop it from the URL so a
-  // reload does not overwrite filters the user has changed since.
+  // Apply the filter requested by the dashboard once, then drop it from the URL
+  // so a reload does not overwrite filters the user has changed since.
+  //
+  // A present-but-empty `statuses` means "every status": that is how the
+  // dashboard's "Applications" tile clears a filter left over from the
+  // "In Progress" tile. Without the param the stored filters are kept, so
+  // coming back to the list from another page restores the user's view.
   useEffect(() => {
-    if (!statusesParam) return
+    if (statusesParam === null) return
 
     const statuses = parseStatuses(statusesParam)
-    if (statuses.length > 0) {
-      setFilters({ statuses, page: 1 })
-    }
+    setFilters(statuses.length > 0 ? { statuses, page: 1 } : { page: 1 })
 
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('statuses')

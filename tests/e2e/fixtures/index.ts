@@ -1,6 +1,9 @@
 import { test as base, expect } from '@playwright/test'
 import { AppDataApiMock } from '../mocks/app-data-api.mock'
 import { AuthApiMock } from '../mocks/auth-api.mock'
+import { ApplicationDetailPage } from '../pages/application-detail.page'
+import { AddApplicationDialogPage } from '../pages/add-application-dialog.page'
+import { ApplicationsListPage } from '../pages/applications-list.page'
 import { DashboardPage } from '../pages/dashboard.page'
 import { LoginPage } from '../pages/login.page'
 import { RegisterPage } from '../pages/register.page'
@@ -26,6 +29,12 @@ export interface Fixtures {
   registerPage: RegisterPage
   /** Authenticated dashboard page object. */
   dashboardPage: DashboardPage
+  /** Applications list page object. */
+  applicationsListPage: ApplicationsListPage
+  /** Single-application detail page object. */
+  applicationDetailPage: ApplicationDetailPage
+  /** "Add Application" dialog opened from the dashboard. */
+  addApplicationDialog: AddApplicationDialogPage
 }
 
 export const test = base.extend<Fixtures>({
@@ -57,6 +66,18 @@ export const test = base.extend<Fixtures>({
 
   dashboardPage: async ({ page }, provide) => {
     await provide(new DashboardPage(page))
+  },
+
+  applicationsListPage: async ({ page }, provide) => {
+    await provide(new ApplicationsListPage(page))
+  },
+
+  applicationDetailPage: async ({ page }, provide) => {
+    await provide(new ApplicationDetailPage(page))
+  },
+
+  addApplicationDialog: async ({ page }, provide) => {
+    await provide(new AddApplicationDialogPage(page))
   },
 })
 
