@@ -1,4 +1,34 @@
 {
-  "title": "Applications",
-  "empty": "No applications yet. Add your first one to start tracking its progress."
+  "greeting": {
+    "title": "Welcome back!",
+    "subtitle": "Track and manage your job applications."
+  },
+  "summary": {
+    "ariaLabel": "Application summary",
+    "applications": "Applications",
+    "inProgress": "In Progress",
+    "loading": "loading"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "addApplication": {
+      "title": "Add Application",
+      "subtitle": "Track a new job application"
+    }
+  },
+  "upcomingInterview": {
+    "sectionLabel": "Upcoming interview",
+    "heading": "Next Interview",
+    "positionAtCompany": "{{position}} @ {{company}}",
+    "typeAndTime": "{{type}} · {{time}}",
+    "ariaLabel": "Next interview: {{type}} at {{company}}",
+    "types": {
+      "screening": "Screening",
+      "phone": "Phone",
+      "technical": "Technical",
+      "final": "Final Round",
+      "hr": "HR",
+      "other": "Other"
+    }
+  }
 }

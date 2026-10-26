@@ -5,7 +5,7 @@ const applicationsSegment = 'applications'
 
 /** Route paths for the applications feature. */
 export const applicationsPaths = {
-  list: APP_HOME_PATH,
+  list: `${APP_HOME_PATH}/${applicationsSegment}`,
 } as const
 
 /** Lazy route definitions for the applications feature. */

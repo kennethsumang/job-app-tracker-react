@@ -1,4 +1,34 @@
 {
-  "title": "Candidaturas",
-  "empty": "Todavía no hay candidaturas. Añade la primera para empezar a seguir su progreso."
+  "greeting": {
+    "title": "¡Te damos la bienvenida de nuevo!",
+    "subtitle": "Sigue y gestiona tus candidaturas."
+  },
+  "summary": {
+    "ariaLabel": "Resumen de candidaturas",
+    "applications": "Candidaturas",
+    "inProgress": "En curso",
+    "loading": "cargando"
+  },
+  "quickActions": {
+    "title": "Acciones rápidas",
+    "addApplication": {
+      "title": "Añadir candidatura",
+      "subtitle": "Registra una nueva candidatura"
+    }
+  },
+  "upcomingInterview": {
+    "sectionLabel": "Próxima entrevista",
+    "heading": "Próxima entrevista",
+    "positionAtCompany": "{{position}} @ {{company}}",
+    "typeAndTime": "{{type}} · {{time}}",
+    "ariaLabel": "Próxima entrevista: {{type}} en {{company}}",
+    "types": {
+      "screening": "Criba",
+      "phone": "Teléfono",
+      "technical": "Técnica",
+      "final": "Ronda final",
+      "hr": "RR. HH.",
+      "other": "Otra"
+    }
+  }
 }
