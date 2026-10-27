@@ -1,4 +1,60 @@
 {
   "title": "Settings",
-  "empty": "No settings available."
+  "loading": "Loading settings",
+  "error": "Failed to load settings. Please try refreshing the page.",
+  "account": {
+    "heading": "Account",
+    "email": "Email"
+  },
+  "preferences": {
+    "heading": "Preferences",
+    "currency": "Currency",
+    "selectCurrency": "Select Currency",
+    "currencyUpdated": "Currency updated.",
+    "currencyUpdateFailed": "Failed to update currency."
+  },
+  "security": {
+    "heading": "Security",
+    "changePassword": "Change Password",
+    "passwordUpdated": "Password updated successfully. Please sign in again.",
+    "passwordUpdateFailed": "Failed to update password."
+  },
+  "session": {
+    "heading": "Session",
+    "signOut": "Sign Out",
+    "signOutConfirmTitle": "Sign Out?",
+    "signOutConfirmBody": "You will be returned to the sign-in screen.",
+    "cancel": "Cancel",
+    "signingOut": "Signing out…"
+  },
+  "dangerZone": {
+    "heading": "Danger Zone",
+    "deleteAllData": "Delete All Data",
+    "deleteAllDataDescription": "Permanently deletes your account, applications, and all associated data.",
+    "deleteConfirmTitle": "Delete All Data?",
+    "deleteConfirmBody": "This will permanently delete your account and all associated data, including applications, interviews, and settings.",
+    "deleteConfirmWarning": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "deleting": "Deleting…",
+    "deleteEverything": "Delete Everything",
+    "deleteFailed": "Failed to delete account data."
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "toggleCurrentPassword": "Toggle current password visibility",
+    "toggleNewPassword": "Toggle new password visibility",
+    "toggleConfirmPassword": "Toggle confirm password visibility",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…"
+  },
+  "picker": {
+    "searchPlaceholder": "Search…",
+    "searchAriaLabel": "Search options",
+    "noResults": "No results",
+    "cancel": "Cancel"
+  }
 }

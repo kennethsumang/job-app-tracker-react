@@ -1,4 +1,60 @@
 {
   "title": "Configuración",
-  "empty": "No hay configuraciones disponibles."
+  "loading": "Cargando configuración",
+  "error": "No se pudieron cargar los ajustes. Intenta actualizar la página.",
+  "account": {
+    "heading": "Cuenta",
+    "email": "Correo electrónico"
+  },
+  "preferences": {
+    "heading": "Preferencias",
+    "currency": "Moneda",
+    "selectCurrency": "Seleccionar moneda",
+    "currencyUpdated": "Moneda actualizada.",
+    "currencyUpdateFailed": "No se pudo actualizar la moneda."
+  },
+  "security": {
+    "heading": "Seguridad",
+    "changePassword": "Cambiar contraseña",
+    "passwordUpdated": "Contraseña actualizada correctamente. Vuelve a iniciar sesión.",
+    "passwordUpdateFailed": "No se pudo actualizar la contraseña."
+  },
+  "session": {
+    "heading": "Sesión",
+    "signOut": "Cerrar sesión",
+    "signOutConfirmTitle": "¿Cerrar sesión?",
+    "signOutConfirmBody": "Volverás a la pantalla de inicio de sesión.",
+    "cancel": "Cancelar",
+    "signingOut": "Cerrando sesión…"
+  },
+  "dangerZone": {
+    "heading": "Zona de peligro",
+    "deleteAllData": "Eliminar todos los datos",
+    "deleteAllDataDescription": "Elimina permanentemente tu cuenta, solicitudes y todos los datos asociados.",
+    "deleteConfirmTitle": "¿Eliminar todos los datos?",
+    "deleteConfirmBody": "Esto eliminará permanentemente tu cuenta y todos los datos asociados, incluidas solicitudes, entrevistas y ajustes.",
+    "deleteConfirmWarning": "Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "deleting": "Eliminando…",
+    "deleteEverything": "Eliminar todo",
+    "deleteFailed": "No se pudieron eliminar los datos de la cuenta."
+  },
+  "changePassword": {
+    "title": "Cambiar contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "Confirmar nueva contraseña",
+    "toggleCurrentPassword": "Mostrar u ocultar la contraseña actual",
+    "toggleNewPassword": "Mostrar u ocultar la nueva contraseña",
+    "toggleConfirmPassword": "Mostrar u ocultar la confirmación de contraseña",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando…"
+  },
+  "picker": {
+    "searchPlaceholder": "Buscar…",
+    "searchAriaLabel": "Buscar opciones",
+    "noResults": "Sin resultados",
+    "cancel": "Cancelar"
+  }
 }

@@ -1,5 +1,6 @@
 import { test as base, expect } from '@playwright/test'
 import { AppDataApiMock } from '../mocks/app-data-api.mock'
+import { SettingsApiMock } from '../mocks/settings-api.mock'
 import { AuthApiMock } from '../mocks/auth-api.mock'
 import { ApplicationDetailPage } from '../pages/application-detail.page'
 import { AddApplicationDialogPage } from '../pages/add-application-dialog.page'
@@ -7,6 +8,7 @@ import { ApplicationsListPage } from '../pages/applications-list.page'
 import { DashboardPage } from '../pages/dashboard.page'
 import { LoginPage } from '../pages/login.page'
 import { RegisterPage } from '../pages/register.page'
+import { SettingsPage } from '../pages/settings.page'
 
 /**
  * Custom Playwright fixtures.
@@ -23,6 +25,8 @@ export interface Fixtures {
   authApi: AuthApiMock
   /** Mock of the read endpoints the authenticated shell loads. */
   appApi: AppDataApiMock
+  /** Mock of the settings and account endpoints the settings page talks to. */
+  settingsApi: SettingsApiMock
   /** Sign-in page object. */
   loginPage: LoginPage
   /** Registration page object. */
@@ -33,6 +37,8 @@ export interface Fixtures {
   applicationsListPage: ApplicationsListPage
   /** Single-application detail page object. */
   applicationDetailPage: ApplicationDetailPage
+  /** Settings page object. */
+  settingsPage: SettingsPage
   /** "Add Application" dialog opened from the dashboard. */
   addApplicationDialog: AddApplicationDialogPage
 }
@@ -56,6 +62,15 @@ export const test = base.extend<Fixtures>({
     { auto: true },
   ],
 
+  settingsApi: [
+    async ({ page }, provide) => {
+      const settingsApi = new SettingsApiMock(page)
+      await settingsApi.install()
+      await provide(settingsApi)
+    },
+    { auto: true },
+  ],
+
   loginPage: async ({ page }, provide) => {
     await provide(new LoginPage(page))
   },
@@ -74,6 +89,10 @@ export const test = base.extend<Fixtures>({
 
   applicationDetailPage: async ({ page }, provide) => {
     await provide(new ApplicationDetailPage(page))
+  },
+
+  settingsPage: async ({ page }, provide) => {
+    await provide(new SettingsPage(page))
   },
 
   addApplicationDialog: async ({ page }, provide) => {

@@ -39,6 +39,13 @@ export type SignUpOutcome =
   | { outcome: 'server-error' }
   | { outcome: 'network-error' }
 
+/** Failure modes for `POST /api/auth/change-password`. */
+export type ChangePasswordOutcome =
+  | { outcome: 'success' }
+  | { outcome: 'invalid-password' }
+  | { outcome: 'server-error' }
+  | { outcome: 'network-error' }
+
 /** Body the better-auth client sends to `sign-in/email`. */
 export interface SignInPayload {
   email: string
@@ -68,6 +75,12 @@ export interface RecordedSignUp {
   at: number
 }
 
+/** Captured change-password call, used to assert what the UI actually sent. */
+export interface RecordedChangePassword {
+  payload: { currentPassword: string; newPassword: string }
+  at: number
+}
+
 export interface AuthApiMockOptions {
   /** Pre-authenticated user, i.e. an existing valid cookie session. */
   authenticatedAs?: MockUser | null
@@ -88,6 +101,7 @@ export class AuthApiMock {
   private sessionUser: MockUser | null
   private signInOutcome: SignInOutcome
   private signUpOutcome: SignUpOutcome
+  private changePasswordOutcome: ChangePasswordOutcome
   private signInLatencyMs: number
   private signUpLatencyMs: number
   private getSessionLatencyMs: number
@@ -104,6 +118,9 @@ export class AuthApiMock {
   /** Number of `get-session` probes (bootstrap + reloads). */
   getSessionCalls = 0
 
+  /** Bodies of the change-password calls that reached the mock. */
+  readonly changePasswordRequests: RecordedChangePassword[] = []
+
   /** Requests no mock handled — surfaces contract drift immediately. */
   readonly unhandledRequests: string[] = []
 
@@ -112,6 +129,7 @@ export class AuthApiMock {
     this.sessionUser = options.authenticatedAs ?? null
     this.signInOutcome = options.signIn ?? { outcome: 'success' }
     this.signUpOutcome = options.signUp ?? { outcome: 'success' }
+    this.changePasswordOutcome = { outcome: 'success' }
     this.signInLatencyMs = options.signInLatencyMs ?? 0
     this.signUpLatencyMs = options.signUpLatencyMs ?? 0
     this.getSessionLatencyMs = options.getSessionLatencyMs ?? 0
@@ -151,6 +169,11 @@ export class AuthApiMock {
     }
   }
 
+  /** Overrides the change-password response. */
+  respondToChangePasswordWith(outcome: ChangePasswordOutcome): void {
+    this.changePasswordOutcome = outcome
+  }
+
   /** Adds latency to the bootstrap `get-session` probe. */
   setSessionLatency(latencyMs: number): void {
     this.getSessionLatencyMs = latencyMs
@@ -185,6 +208,9 @@ export class AuthApiMock {
         this.signOutCalls += 1
         this.sessionUser = null
         await fulfillJson(route, 200, { success: true })
+        return
+      case 'POST /change-password':
+        await this.handleChangePassword(route)
         return
       default:
         this.unhandledRequests.push(`${method} ${path}`)
@@ -339,7 +365,35 @@ export class AuthApiMock {
         await fulfillJson(route, 500, { message: 'Unhandled mock outcome' })
     }
   }
-}
+  private async handleChangePassword(route: Route): Promise<void> {
+    const payload = readJsonBody<{
+      currentPassword: string
+      newPassword: string
+    }>(route)
+    this.changePasswordRequests.push({ payload, at: Date.now() })
+
+    switch (this.changePasswordOutcome.outcome) {
+      case 'success':
+        await fulfillJson(route, 200, {
+          user: this.sessionUser ?? TEST_ACCOUNTS.verified.user,
+        })
+        return
+      case 'invalid-password':
+        await fulfillJson(route, 400, {
+          message: 'Current password is incorrect',
+        })
+        return
+      case 'server-error':
+        await fulfillJson(route, 500, { message: 'Internal server error' })
+        return
+      case 'network-error':
+        await route.abort('connectionrefused')
+        return
+      default:
+        /* c8 ignore next -- exhaustive guard, unreachable by typing */
+        await fulfillJson(route, 500, { message: 'Unhandled mock outcome' })
+    }
+  }}
 
 /** Builds the user better-auth creates for a successful registration. */
 function buildRegisteredUser(payload: SignUpPayload): MockUser {
