@@ -20,6 +20,7 @@ import {
  * - `POST /api/applications`                → create (recorded, appended to the seed)
  * - `GET  /api/applications/:id`            → single application
  * - `GET  /api/applications/:id/interviews` → interviews of an application
+ * - `GET  /api/applications/:id/status-changelogs` → status history of an application
  * - `GET  /api/interviews/upcoming`         → next interviews (`from`, `top`)
  *
  * Responses can be delayed (`setLatency`) and every endpoint can be made to
@@ -346,6 +347,16 @@ export class AppDataApiMock {
         (interview) => interview.applicationId === segments[2],
       )
       await fulfillEnvelope(route, interviews)
+      return
+    }
+
+    // `/api/applications/:id/status-changelogs`
+    //
+    // No changelogs are seeded; the detail page renders an empty timeline.
+    // This must be an array (not the `{ data, count }` list envelope) or the
+    // page's `changelogs.map` crashes.
+    if (segments.length === 4 && segments[3] === 'status-changelogs') {
+      await fulfillEnvelope(route, [])
       return
     }
 

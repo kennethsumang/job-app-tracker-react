@@ -6,11 +6,18 @@
   "navigation": {
     "primary": "Navegación principal",
     "home": "Inicio",
+    "dashboard": "Panel",
     "applications": "Candidaturas",
+    "calendar": "Calendario",
+    "settings": "Configuración",
     "skipToContent": "Saltar al contenido"
   },
   "language": {
     "label": "Idioma"
+  },
+  "session": {
+    "signOut": "Cerrar sesión",
+    "signingOut": "Cerrando sesión…"
   },
   "status": {
     "loading": "Cargando…"

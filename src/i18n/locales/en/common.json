@@ -6,11 +6,18 @@
   "navigation": {
     "primary": "Primary navigation",
     "home": "Home",
+    "dashboard": "Dashboard",
     "applications": "Applications",
+    "calendar": "Calendar",
+    "settings": "Settings",
     "skipToContent": "Skip to content"
   },
   "language": {
     "label": "Language"
+  },
+  "session": {
+    "signOut": "Sign Out",
+    "signingOut": "Signing out…"
   },
   "status": {
     "loading": "Loading…"

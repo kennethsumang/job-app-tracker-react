@@ -16,32 +16,34 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router'
 import { authPaths } from '@/features/auth'
 import { useSignOut } from '@/features/auth/hooks/use-auth'
 import { useAuthStore } from '@/features/auth/store/auth.store'
+import { LanguageSwitcher } from '@/shared/components/LanguageSwitcher'
 import { PageLoader } from '@/shared/components/PageLoader'
 
 const DRAWER_WIDTH = 240
 
 const NAV_ITEMS = [
   {
-    label: 'Dashboard',
+    labelKey: 'navigation.dashboard',
     path: '/app',
     icon: <HomeOutlinedIcon />,
   },
   {
-    label: 'Applications',
+    labelKey: 'navigation.applications',
     path: '/app/applications',
     icon: <WorkOutlineRoundedIcon />,
   },
   {
-    label: 'Calendar',
+    labelKey: 'navigation.calendar',
     path: '/app/calendar',
     icon: <CalendarTodayOutlinedIcon />,
   },
   {
-    label: 'Settings',
+    labelKey: 'navigation.settings',
     path: '/app/settings',
     icon: <SettingsOutlinedIcon />,
   },
@@ -79,6 +81,7 @@ function getActiveIndex(pathname: string): number {
  * xs/sm, redirecting unauthenticated users to the login route.
  */
 export function AppLayout() {
+  const { t } = useTranslation()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const activeIndex = getActiveIndex(pathname)
@@ -131,11 +134,14 @@ export function AppLayout() {
               sx={{ borderRadius: 2, mx: 1, mb: 0.5 }}
             >
               <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
+              <ListItemText primary={t(item.labelKey)} />
             </ListItemButton>
           ))}
         </List>
         <Divider />
+        <Box sx={{ px: 1, py: 1.5 }}>
+          <LanguageSwitcher />
+        </Box>
         <List sx={{ pb: 1 }}>
           <ListItemButton
             onClick={handleSignOut}
@@ -146,7 +152,11 @@ export function AppLayout() {
               <LogoutOutlinedIcon />
             </ListItemIcon>
             <ListItemText
-              primary={signOutMutation.isPending ? 'Signing out…' : 'Sign Out'}
+              primary={
+                signOutMutation.isPending
+                  ? t('session.signingOut')
+                  : t('session.signOut')
+              }
             />
           </ListItemButton>
         </List>
@@ -209,7 +219,7 @@ export function AppLayout() {
           {NAV_ITEMS.map((item) => (
             <BottomNavigationAction
               key={item.path}
-              label={item.label}
+              label={t(item.labelKey)}
               icon={item.icon}
             />
           ))}
