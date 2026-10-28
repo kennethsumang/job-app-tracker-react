@@ -374,8 +374,12 @@ export class AuthApiMock {
 
     switch (this.changePasswordOutcome.outcome) {
       case 'success':
+        // Changing the password invalidates the current session, so a
+        // subsequent `get-session` returns null and the app can land on the
+        // sign-in screen after navigating to `/`.
+        this.sessionUser = null
         await fulfillJson(route, 200, {
-          user: this.sessionUser ?? TEST_ACCOUNTS.verified.user,
+          user: TEST_ACCOUNTS.verified.user,
         })
         return
       case 'invalid-password':

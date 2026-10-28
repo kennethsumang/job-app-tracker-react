@@ -7,8 +7,7 @@ import {
 } from './http'
 
 /**
- * In-browser mock of the read-only API endpoints the authenticated shell needs
- * right after a successful sign-in.
+ * In-browser mock of the API endpoints the authenticated shell needs.
  *
  * Without these, the dashboard would render react-query error states and any
  * "lands on the dashboard" assertion would be flaky or meaningless. Only the
@@ -16,20 +15,27 @@ import {
  * when new journeys need more data.
  *
  * Endpoints covered:
- * - `GET  /api/applications`                → list + count (statuses/search/showDeleted/page/limit)
- * - `POST /api/applications`                → create (recorded, appended to the seed)
- * - `PATCH /api/applications/:id`           → update (recorded, applied to the seed)
+ * - `GET    /api/applications`              → list + count (statuses/search/showDeleted/page/limit)
+ * - `POST   /api/applications`              → create (recorded, appended to the seed)
+ * - `PATCH  /api/applications/:id`          → update (recorded, applied to the seed)
  * - `DELETE /api/applications/:id`          → soft-delete (recorded, sets deletedAt)
- * - `GET  /api/applications/:id`            → single application
- * - `GET  /api/applications/:id/interviews` → interviews of an application
- * - `GET  /api/applications/:id/status-changelogs` → empty status history
- * - `GET  /api/interviews/upcoming`         → next interviews (`from`, `top`)
- * - `GET  /api/interviews`                  → calendar range (`from`, `to`, `timezone`)
+ * - `PATCH  /api/applications/:id/status`   → status change (recorded, applied)
+ * - `POST   /api/applications/:id/restore`  → restore (clears deletedAt)
+ * - `POST   /api/applications/:id/interviews`            → create interview
+ * - `PATCH  /api/applications/:id/interviews/:interviewId` → update interview
+ * - `DELETE /api/applications/:id/interviews/:interviewId` → delete interview (204)
+ * - `GET    /api/applications/:id`          → single application
+ * - `GET    /api/applications/:id/interviews` → interviews of an application
+ * - `GET    /api/applications/:id/status-changelogs` → empty status history
+ * - `GET    /api/interviews/upcoming`       → next interviews (`from`, `top`)
+ * - `GET    /api/interviews`                → calendar range (`from`, `to`, `timezone`)
  *
  * Responses can be delayed (`setLatency`) and every endpoint can be made to
  * fail (`failApplications`, `failCreateApplication`, `failUpdateApplication`,
- * `failDeleteApplication`, `failApplicationDetail`, `failUpcomingInterviews`),
- * so specs can observe loading states and exercise failure paths.
+ * `failDeleteApplication`, `failStatusChange`, `failCreateInterview`,
+ * `failUpdateInterview`, `failDeleteInterview`, `failApplicationDetail`,
+ * `failUpcomingInterviews`), so specs can observe loading states and exercise
+ * failure paths.
  */
 
 /** Subset of the API `JobApplication` contract used by the fixtures. */
@@ -283,6 +289,46 @@ export interface RecordedDeleteApplicationRequest {
   id: string
 }
 
+/** Body of `PATCH /api/applications/:id/status` as sent by the client. */
+export interface MockUpdateStatusPayload {
+  status: string
+  changedAt?: string
+}
+
+/** A `PATCH /api/applications/:id/status` request seen by the mock. */
+export interface RecordedStatusChangeRequest {
+  id: string
+  payload: MockUpdateStatusPayload
+}
+
+/** Body of `POST /api/applications/:id/interviews` as sent by the client. */
+export interface MockCreateInterviewPayload {
+  type: string
+  scheduledAt: string
+  timezone?: string
+  location?: string
+  notes?: string
+}
+
+/** A `POST /api/applications/:id/interviews` request seen by the mock. */
+export interface RecordedCreateInterviewRequest {
+  applicationId: string
+  payload: MockCreateInterviewPayload
+}
+
+/** A `PATCH /api/applications/:id/interviews/:interviewId` request. */
+export interface RecordedUpdateInterviewRequest {
+  applicationId: string
+  interviewId: string
+  payload: Partial<MockCreateInterviewPayload>
+}
+
+/** A `DELETE /api/applications/:id/interviews/:interviewId` request. */
+export interface RecordedDeleteInterviewRequest {
+  applicationId: string
+  interviewId: string
+}
+
 export class AppDataApiMock {
   private readonly page: Page
   private applicationsData: readonly MockApplication[]
@@ -292,6 +338,10 @@ export class AppDataApiMock {
   private createApplicationFailure: AppDataFailure | null = null
   private updateApplicationFailure: AppDataFailure | null = null
   private deleteApplicationFailure: AppDataFailure | null = null
+  private statusChangeFailure: AppDataFailure | null = null
+  private createInterviewFailure: AppDataFailure | null = null
+  private updateInterviewFailure: AppDataFailure | null = null
+  private deleteInterviewFailure: AppDataFailure | null = null
   private applicationDetailFailure: AppDataFailure | null = null
   private upcomingInterviewsFailure: AppDataFailure | null = null
 
@@ -306,6 +356,18 @@ export class AppDataApiMock {
 
   /** Every delete request the mock received, in order. */
   readonly deleteRequests: RecordedDeleteApplicationRequest[] = []
+
+  /** Every status-change request the mock received, in order. */
+  readonly statusChangeRequests: RecordedStatusChangeRequest[] = []
+
+  /** Every interview-create request the mock received, in order. */
+  readonly createInterviewRequests: RecordedCreateInterviewRequest[] = []
+
+  /** Every interview-update request the mock received, in order. */
+  readonly updateInterviewRequests: RecordedUpdateInterviewRequest[] = []
+
+  /** Every interview-delete request the mock received, in order. */
+  readonly deleteInterviewRequests: RecordedDeleteInterviewRequest[] = []
 
   /** Every upcoming-interviews request the mock served, in order. */
   readonly upcomingInterviewRequests: RecordedUpcomingInterviewsRequest[] = []
@@ -390,6 +452,26 @@ export class AppDataApiMock {
     this.deleteApplicationFailure = failure
   }
 
+  /** Makes every `PATCH /api/applications/:id/status` request fail. */
+  failStatusChange(failure: AppDataFailure): void {
+    this.statusChangeFailure = failure
+  }
+
+  /** Makes every `POST /api/applications/:id/interviews` request fail. */
+  failCreateInterview(failure: AppDataFailure): void {
+    this.createInterviewFailure = failure
+  }
+
+  /** Makes every `PATCH /api/applications/:id/interviews/:interviewId` fail. */
+  failUpdateInterview(failure: AppDataFailure): void {
+    this.updateInterviewFailure = failure
+  }
+
+  /** Makes every `DELETE /api/applications/:id/interviews/:interviewId` fail. */
+  failDeleteInterview(failure: AppDataFailure): void {
+    this.deleteInterviewFailure = failure
+  }
+
   /** Makes every `/api/applications/:id` request fail. */
   failApplicationDetail(failure: AppDataFailure): void {
     this.applicationDetailFailure = failure
@@ -406,6 +488,10 @@ export class AppDataApiMock {
     this.createApplicationFailure = null
     this.updateApplicationFailure = null
     this.deleteApplicationFailure = null
+    this.statusChangeFailure = null
+    this.createInterviewFailure = null
+    this.updateInterviewFailure = null
+    this.deleteInterviewFailure = null
     this.applicationDetailFailure = null
     this.upcomingInterviewsFailure = null
   }
@@ -416,16 +502,41 @@ export class AppDataApiMock {
     const segments = url.pathname.split('/').filter(Boolean)
 
     if (method === 'POST') {
+      if (segments.length === 4 && segments[3] === 'interviews') {
+        await this.handleCreateInterview(route, segments)
+        return
+      }
+
+      if (segments.length === 4 && segments[3] === 'restore') {
+        await this.handleRestore(route, segments)
+        return
+      }
+
       await this.handleCreate(route)
       return
     }
 
     if (method === 'PATCH') {
+      if (segments.length === 4 && segments[3] === 'status') {
+        await this.handleStatusChange(route, segments)
+        return
+      }
+
+      if (segments.length === 5 && segments[3] === 'interviews') {
+        await this.handleUpdateInterview(route, segments)
+        return
+      }
+
       await this.handleUpdate(route, segments)
       return
     }
 
     if (method === 'DELETE') {
+      if (segments.length === 5 && segments[3] === 'interviews') {
+        await this.handleDeleteInterview(route, segments)
+        return
+      }
+
       await this.handleDelete(route, segments)
       return
     }
@@ -640,6 +751,187 @@ export class AppDataApiMock {
     )
 
     await fulfillEnvelope(route, deleted, 200)
+  }
+
+  /**
+   * Handles `PATCH /api/applications/:id/status`.
+   *
+   * The payload is recorded before the (optional) failure; on success the
+   * seeded application's status is replaced.
+   */
+  private async handleStatusChange(
+    route: Route,
+    segments: string[],
+  ): Promise<void> {
+    const id = segments[2]
+    const payload = readJsonBody<MockUpdateStatusPayload>(route)
+    this.statusChangeRequests.push({ id, payload })
+
+    await this.wait()
+
+    if (this.statusChangeFailure) {
+      await this.respondWithFailure(route, this.statusChangeFailure)
+      return
+    }
+
+    const existing = this.applicationsData.find((app) => app.id === id)
+    if (!existing) {
+      await fulfillApiError(route, 404, 'Application not found')
+      return
+    }
+
+    const now = new Date().toISOString()
+    const updated: MockApplication = {
+      ...existing,
+      status: payload.status,
+      updatedAt: now,
+    }
+
+    this.applicationsData = this.applicationsData.map((app) =>
+      app.id === id ? updated : app,
+    )
+
+    await fulfillEnvelope(route, updated, 200)
+  }
+
+  /**
+   * Handles `POST /api/applications/:id/restore`.
+   */
+  private async handleRestore(
+    route: Route,
+    segments: string[],
+  ): Promise<void> {
+    const id = segments[2]
+
+    await this.wait()
+
+    const existing = this.applicationsData.find((app) => app.id === id)
+    if (!existing) {
+      await fulfillApiError(route, 404, 'Application not found')
+      return
+    }
+
+    const now = new Date().toISOString()
+    const restored: MockApplication = {
+      ...existing,
+      deletedAt: null,
+      updatedAt: now,
+    }
+
+    this.applicationsData = this.applicationsData.map((app) =>
+      app.id === id ? restored : app,
+    )
+
+    await fulfillEnvelope(route, restored, 200)
+  }
+
+  /**
+   * Handles `POST /api/applications/:id/interviews`.
+   *
+   * The payload is recorded before the (optional) failure; on success the
+   * interview is appended to the seeded interviews.
+   */
+  private async handleCreateInterview(
+    route: Route,
+    segments: string[],
+  ): Promise<void> {
+    const applicationId = segments[2]
+    const payload = readJsonBody<MockCreateInterviewPayload>(route)
+    this.createInterviewRequests.push({ applicationId, payload })
+
+    await this.wait()
+
+    if (this.createInterviewFailure) {
+      await this.respondWithFailure(route, this.createInterviewFailure)
+      return
+    }
+
+    const now = new Date().toISOString()
+    const created: MockInterview = {
+      id: `int_e2e_created_${this.createInterviewRequests.length}`,
+      applicationId,
+      type: payload.type as MockInterviewType,
+      scheduledAt: payload.scheduledAt,
+      timezone: payload.timezone ?? null,
+      location: payload.location ?? null,
+      notes: payload.notes ?? null,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    this.interviewsData = [...this.interviewsData, created]
+
+    await fulfillEnvelope(route, created, 201)
+  }
+
+  /**
+   * Handles `PATCH /api/applications/:id/interviews/:interviewId`.
+   */
+  private async handleUpdateInterview(
+    route: Route,
+    segments: string[],
+  ): Promise<void> {
+    const applicationId = segments[2]
+    const interviewId = segments[4]
+    const payload = readJsonBody<Partial<MockCreateInterviewPayload>>(route)
+    this.updateInterviewRequests.push({ applicationId, interviewId, payload })
+
+    await this.wait()
+
+    if (this.updateInterviewFailure) {
+      await this.respondWithFailure(route, this.updateInterviewFailure)
+      return
+    }
+
+    const existing = this.interviewsData.find(
+      (interview) => interview.id === interviewId,
+    )
+    if (!existing) {
+      await fulfillApiError(route, 404, 'Interview not found')
+      return
+    }
+
+    const now = new Date().toISOString()
+    const updated: MockInterview = {
+      ...existing,
+      type: (payload.type as MockInterviewType | undefined) ?? existing.type,
+      scheduledAt: payload.scheduledAt ?? existing.scheduledAt,
+      timezone: payload.timezone ?? existing.timezone,
+      location: payload.location ?? existing.location,
+      notes: payload.notes ?? existing.notes,
+      updatedAt: now,
+    }
+
+    this.interviewsData = this.interviewsData.map((interview) =>
+      interview.id === interviewId ? updated : interview,
+    )
+
+    await fulfillEnvelope(route, updated, 200)
+  }
+
+  /**
+   * Handles `DELETE /api/applications/:id/interviews/:interviewId` (204).
+   */
+  private async handleDeleteInterview(
+    route: Route,
+    segments: string[],
+  ): Promise<void> {
+    const applicationId = segments[2]
+    const interviewId = segments[4]
+    this.deleteInterviewRequests.push({ applicationId, interviewId })
+
+    await this.wait()
+
+    if (this.deleteInterviewFailure) {
+      await this.respondWithFailure(route, this.deleteInterviewFailure)
+      return
+    }
+
+    this.interviewsData = this.interviewsData.filter(
+      (interview) => interview.id !== interviewId,
+    )
+
+    await route.fulfill({ status: 204 })
   }
 
   private async handleInterviews(route: Route): Promise<void> {

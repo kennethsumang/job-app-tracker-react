@@ -9,9 +9,11 @@ import { ApplicationsListPage } from '../pages/applications-list.page'
 import { CalendarPage } from '../pages/calendar.page'
 import { DashboardPage } from '../pages/dashboard.page'
 import { DeleteApplicationDialogPage } from '../pages/delete-application-dialog.page'
+import { InterviewFormDialogPage } from '../pages/interview-form-dialog.page'
 import { LoginPage } from '../pages/login.page'
 import { RegisterPage } from '../pages/register.page'
 import { SettingsPage } from '../pages/settings.page'
+import { StatusChangeDialogPage } from '../pages/status-change-dialog.page'
 
 /**
  * Custom Playwright fixtures.
@@ -44,6 +46,10 @@ export interface Fixtures {
   applicationFormDialog: ApplicationFormDialogPage
   /** Soft-delete confirmation dialog. */
   deleteApplicationDialog: DeleteApplicationDialogPage
+  /** Status-change dialog. */
+  statusChangeDialog: StatusChangeDialogPage
+  /** Interview form dialog (create mode). */
+  interviewFormDialog: InterviewFormDialogPage
   /** Settings page object. */
   settingsPage: SettingsPage
   /** "Add Application" dialog opened from the dashboard. */
@@ -106,6 +112,14 @@ export const test = base.extend<Fixtures>({
 
   deleteApplicationDialog: async ({ page }, provide) => {
     await provide(new DeleteApplicationDialogPage(page))
+  },
+
+  statusChangeDialog: async ({ page }, provide) => {
+    await provide(new StatusChangeDialogPage(page))
+  },
+
+  interviewFormDialog: async ({ page }, provide) => {
+    await provide(new InterviewFormDialogPage(page))
   },
 
   settingsPage: async ({ page }, provide) => {

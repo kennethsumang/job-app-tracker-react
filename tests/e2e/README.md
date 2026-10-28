@@ -40,12 +40,16 @@ tests/e2e/
 │   └── app-data-api.mock.ts # applications + interviews reads
 ├── pages/
 │   ├── login.page.ts
+│   ├── register.page.ts
 │   ├── dashboard.page.ts
 │   ├── applications-list.page.ts
 │   ├── application-detail.page.ts
+│   ├── application-form-dialog.page.ts
 │   ├── add-application-dialog.page.ts
-│   ├── calendar.page.ts
-│   └── register.page.ts
+│   ├── status-change-dialog.page.ts
+│   ├── interview-form-dialog.page.ts
+│   ├── delete-application-dialog.page.ts
+│   └── calendar.page.ts
 ├── specs/
 │   ├── auth/
 │   │   ├── login/
@@ -66,7 +70,9 @@ tests/e2e/
 │   │   ├── applications-list-errors.spec.ts # failing list requests
 │   │   ├── create-application.spec.ts       # FAB create (happy + failure)
 │   │   ├── edit-application.spec.ts         # entry edit (happy + failure)
-│   │   └── delete-application.spec.ts       # entry delete (happy + failure)
+│   │   ├── delete-application.spec.ts       # entry delete (happy + failure)
+│   │   ├── application-detail.spec.ts       # header, edit, status, delete, add interview
+│   │   └── application-detail-errors.spec.ts # failing detail actions
 │   └── calendar/
 │       └── calendar.spec.ts              # month grid, events, day dialog
 ```
@@ -111,6 +117,11 @@ policy, validation rejection, 5xx and network aborts. Specs assert the
 | `POST /api/applications`                 | creates (201) and appends to the seed, so counters move          |
 | `PATCH /api/applications/:id`            | updates (200) and replaces the seeded application                |
 | `DELETE /api/applications/:id`           | soft-deletes (200), setting `deletedAt`                          |
+| `PATCH /api/applications/:id/status`     | changes the status (200) and replaces the seed                   |
+| `POST /api/applications/:id/restore`     | restores (200), clearing `deletedAt`                             |
+| `POST /api/applications/:id/interviews`  | creates an interview (201) and appends to the seed               |
+| `PATCH /api/applications/:id/interviews/:interviewId` | updates an interview (200)                          |
+| `DELETE /api/applications/:id/interviews/:interviewId` | deletes an interview (204)                          |
 | `GET /api/applications/:id`              | single application, `404` when the id is unknown                  |
 | `GET /api/applications/:id/interviews`   | interviews of that application                                    |
 | `GET /api/interviews/upcoming`           | interviews at/after `from`, sorted, limited by `top`              |
@@ -123,13 +134,16 @@ It also offers the knobs the failure/loading specs need:
   `dashboardCounts`, never hardcoded).
 - `setLatency()` delays every response so loading placeholders stay observable.
 - `failApplications()`, `failCreateApplication()`, `failUpdateApplication()`,
-  `failDeleteApplication()`, `failApplicationDetail()` and
-  `failUpcomingInterviews()` inject a `{ status, message }` failure or
+  `failDeleteApplication()`, `failStatusChange()`, `failCreateInterview()`,
+  `failUpdateInterview()`, `failDeleteInterview()`, `failApplicationDetail()`
+  and `failUpcomingInterviews()` inject a `{ status, message }` failure or
   `'network-error'`; `clearFailures()` restores the happy path (used by the
   retry tests).
-- `applicationListRequests` / `createRequests` / `upcomingInterviewRequests` log
-  what the UI asked for, so specs can assert the request contract instead of
-  sleeping.
+- `applicationListRequests` / `createRequests` / `updateRequests` /
+  `deleteRequests` / `statusChangeRequests` / `createInterviewRequests` /
+  `updateInterviewRequests` / `deleteInterviewRequests` /
+  `upcomingInterviewRequests` log what the UI asked for, so specs can assert
+  the request contract instead of sleeping.
 
 ## Why not a global storage state?
 
