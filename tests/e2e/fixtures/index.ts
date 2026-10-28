@@ -3,10 +3,12 @@ import { AppDataApiMock } from '../mocks/app-data-api.mock'
 import { SettingsApiMock } from '../mocks/settings-api.mock'
 import { AuthApiMock } from '../mocks/auth-api.mock'
 import { ApplicationDetailPage } from '../pages/application-detail.page'
+import { ApplicationFormDialogPage } from '../pages/application-form-dialog.page'
 import { AddApplicationDialogPage } from '../pages/add-application-dialog.page'
 import { ApplicationsListPage } from '../pages/applications-list.page'
 import { CalendarPage } from '../pages/calendar.page'
 import { DashboardPage } from '../pages/dashboard.page'
+import { DeleteApplicationDialogPage } from '../pages/delete-application-dialog.page'
 import { LoginPage } from '../pages/login.page'
 import { RegisterPage } from '../pages/register.page'
 import { SettingsPage } from '../pages/settings.page'
@@ -38,6 +40,10 @@ export interface Fixtures {
   applicationsListPage: ApplicationsListPage
   /** Single-application detail page object. */
   applicationDetailPage: ApplicationDetailPage
+  /** Two-step create/edit form dialog (edit mode). */
+  applicationFormDialog: ApplicationFormDialogPage
+  /** Soft-delete confirmation dialog. */
+  deleteApplicationDialog: DeleteApplicationDialogPage
   /** Settings page object. */
   settingsPage: SettingsPage
   /** "Add Application" dialog opened from the dashboard. */
@@ -92,6 +98,14 @@ export const test = base.extend<Fixtures>({
 
   applicationDetailPage: async ({ page }, provide) => {
     await provide(new ApplicationDetailPage(page))
+  },
+
+  applicationFormDialog: async ({ page }, provide) => {
+    await provide(new ApplicationFormDialogPage(page))
+  },
+
+  deleteApplicationDialog: async ({ page }, provide) => {
+    await provide(new DeleteApplicationDialogPage(page))
   },
 
   settingsPage: async ({ page }, provide) => {

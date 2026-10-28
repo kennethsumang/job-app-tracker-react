@@ -3,8 +3,10 @@ import { expect, type Locator, type Page } from '@playwright/test'
 /**
  * Page object for the applications list (`/app/applications`).
  *
- * The dashboard links into this page, so the specs assert what the list ends up
- * rendering: the heading, the filter bar and the cards the API returned.
+ * The dashboard links into this page, and the specs also navigate here directly,
+ * so this page object models the search field, the filter drawer (status chips +
+ * the deleted-applications switch), pagination and the list's loading/empty/
+ * error states.
  */
 export class ApplicationsListPage {
   readonly page: Page
@@ -13,6 +15,7 @@ export class ApplicationsListPage {
   readonly emptyState: Locator
   readonly retryButton: Locator
   readonly errorMessage: Locator
+  readonly openFiltersButton: Locator
 
   constructor(page: Page) {
     this.page = page
@@ -23,8 +26,9 @@ export class ApplicationsListPage {
     /* The failure state prints the API message, and the API error text is not
      * fixed copy, so it is matched loosely. */
     this.errorMessage = page.getByText(
-      /Failed to load|unavailable|Network request failed|Internal server error/i,
+      /Failed to load|unavailable|Network request failed|Internal server error|Unable to reach|Request timed out/i,
     )
+    this.openFiltersButton = page.getByRole('button', { name: 'Open filters' })
   }
 
   /** All application cards currently rendered. */
@@ -35,6 +39,68 @@ export class ApplicationsListPage {
   /** Card of a single application, addressed by its company name. */
   card(company: string): Locator {
     return this.page.getByRole('button', { name: `View details for ${company}` })
+  }
+
+  /** Floating action button that opens the quick create dialog. */
+  get addApplicationButton(): Locator {
+    return this.page.getByRole('button', {
+      name: 'Add application',
+      exact: true,
+    })
+  }
+
+  /** "Edit application" action of the given card. */
+  editButton(company: string): Locator {
+    return this.card(company).getByRole('button', {
+      name: 'Edit application',
+      exact: true,
+    })
+  }
+
+  /** "Delete application" action of the given card. */
+  deleteButton(company: string): Locator {
+    return this.card(company).getByRole('button', {
+      name: 'Delete application',
+      exact: true,
+    })
+  }
+
+  /** Opens the quick create dialog from the floating action button. */
+  async openAddApplication(): Promise<void> {
+    await this.addApplicationButton.click()
+  }
+
+  /** The filter drawer, unique among the app's drawers by its Apply action. */
+  get filtersDrawer(): Locator {
+    return this.page.locator('.MuiDrawer-paper').filter({
+      has: this.page.getByRole('button', { name: 'Apply filters', exact: true }),
+    })
+  }
+
+  /** The "Include deleted applications" switch inside the filter drawer. */
+  get includeDeletedSwitch(): Locator {
+    return this.filtersDrawer.getByRole('switch', {
+      name: 'Include deleted applications',
+    })
+  }
+
+  /** The "Clear all filters" action in the filter bar. */
+  get clearAllFiltersButton(): Locator {
+    return this.page.getByRole('button', {
+      name: 'Clear all filters',
+      exact: true,
+    })
+  }
+
+  /** Pagination landmark rendered when the result spans several pages. */
+  get pagination(): Locator {
+    return this.page.getByRole('navigation', { name: 'Application pages' })
+  }
+
+  /** Navigates straight to the list (bypassing the login form). */
+  async goto(path = '/app/applications'): Promise<void> {
+    await this.page.goto(path)
+    await this.expectLoaded()
   }
 
   /** Asserts the list finished loading and is on screen. */
@@ -65,6 +131,61 @@ export class ApplicationsListPage {
   /** Retries the failed list request. */
   async retry(): Promise<void> {
     await this.retryButton.click()
+  }
+
+  /** Asserts the list is showing its empty state (default or deleted copy). */
+  async expectEmptyState(message = 'No applications yet.'): Promise<void> {
+    await expect(this.page.getByText(message, { exact: true })).toBeVisible()
+    await expect(this.cards).toHaveCount(0)
+  }
+
+  /** Asserts the page's result snackbar shows the given message. */
+  async expectSnackbar(message: string): Promise<void> {
+    await expect(this.page.getByText(message, { exact: true })).toBeVisible()
+  }
+
+  /** Types into the search box (the filters update after a short debounce). */
+  async search(term: string): Promise<void> {
+    await this.searchInput.fill(term)
+  }
+
+  /** Opens the filter drawer. */
+  async openFilters(): Promise<void> {
+    await this.openFiltersButton.click()
+    await expect(this.filtersDrawer).toBeVisible()
+  }
+
+  /** Toggles a status chip in the filter drawer by its translated label. */
+  async toggleStatus(label: string): Promise<void> {
+    await this.filtersDrawer
+      .getByRole('button', { name: label, exact: true })
+      .click()
+  }
+
+  /** Sets the "Include deleted applications" switch to the given state. */
+  async setIncludeDeleted(checked: boolean): Promise<void> {
+    if ((await this.includeDeletedSwitch.isChecked()) !== checked) {
+      await this.includeDeletedSwitch.click()
+    }
+  }
+
+  /** Applies the drawer's draft filters and closes it. */
+  async applyFilters(): Promise<void> {
+    await this.filtersDrawer
+      .getByRole('button', { name: 'Apply filters', exact: true })
+      .click()
+  }
+
+  /** Clears every filter with the filter bar's one-click action. */
+  async clearAllFilters(): Promise<void> {
+    await this.clearAllFiltersButton.click()
+  }
+
+  /** Goes to the given pagination page. */
+  async goToPage(pageNumber: number): Promise<void> {
+    await this.pagination
+      .getByRole('button', { name: `Go to page ${pageNumber}` })
+      .click()
   }
 
   /**

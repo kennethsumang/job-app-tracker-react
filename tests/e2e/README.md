@@ -61,6 +61,12 @@ tests/e2e/
 │   │   ├── dashboard.spec.ts             # widgets, counters, navigation, sign-out
 │   │   ├── dashboard-errors.spec.ts      # failing counters/interviews/list
 │   │   └── add-application.spec.ts       # Add Application dialog
+│   ├── applications/
+│   │   ├── applications-list.spec.ts        # search/status/deleted filters + pagination
+│   │   ├── applications-list-errors.spec.ts # failing list requests
+│   │   ├── create-application.spec.ts       # FAB create (happy + failure)
+│   │   ├── edit-application.spec.ts         # entry edit (happy + failure)
+│   │   └── delete-application.spec.ts       # entry delete (happy + failure)
 │   └── calendar/
 │       └── calendar.spec.ts              # month grid, events, day dialog
 ```
@@ -101,8 +107,10 @@ policy, validation rejection, 5xx and network aborts. Specs assert the
 
 | Request                                  | Behaviour                                                        |
 | ---------------------------------------- | ---------------------------------------------------------------- |
-| `GET /api/applications`                  | `{ data, count }` page, filtered by the repeated `statuses` key   |
+| `GET /api/applications`                  | `{ data, count }` page, filtered by `statuses` (repeated), `search` and `showDeleted` |
 | `POST /api/applications`                 | creates (201) and appends to the seed, so counters move          |
+| `PATCH /api/applications/:id`            | updates (200) and replaces the seeded application                |
+| `DELETE /api/applications/:id`           | soft-deletes (200), setting `deletedAt`                          |
 | `GET /api/applications/:id`              | single application, `404` when the id is unknown                  |
 | `GET /api/applications/:id/interviews`   | interviews of that application                                    |
 | `GET /api/interviews/upcoming`           | interviews at/after `from`, sorted, limited by `top`              |
@@ -114,7 +122,8 @@ It also offers the knobs the failure/loading specs need:
   replace the seed (the dashboard's counters are derived from
   `dashboardCounts`, never hardcoded).
 - `setLatency()` delays every response so loading placeholders stay observable.
-- `failApplications()`, `failCreateApplication()`, `failApplicationDetail()` and
+- `failApplications()`, `failCreateApplication()`, `failUpdateApplication()`,
+  `failDeleteApplication()`, `failApplicationDetail()` and
   `failUpcomingInterviews()` inject a `{ status, message }` failure or
   `'network-error'`; `clearFailures()` restores the happy path (used by the
   retry tests).

@@ -16,8 +16,10 @@ import {
  * when new journeys need more data.
  *
  * Endpoints covered:
- * - `GET  /api/applications`                → list + count (statuses/search/page/limit)
+ * - `GET  /api/applications`                → list + count (statuses/search/showDeleted/page/limit)
  * - `POST /api/applications`                → create (recorded, appended to the seed)
+ * - `PATCH /api/applications/:id`           → update (recorded, applied to the seed)
+ * - `DELETE /api/applications/:id`          → soft-delete (recorded, sets deletedAt)
  * - `GET  /api/applications/:id`            → single application
  * - `GET  /api/applications/:id/interviews` → interviews of an application
  * - `GET  /api/applications/:id/status-changelogs` → empty status history
@@ -25,9 +27,9 @@ import {
  * - `GET  /api/interviews`                  → calendar range (`from`, `to`, `timezone`)
  *
  * Responses can be delayed (`setLatency`) and every endpoint can be made to
- * fail (`failApplications`, `failCreateApplication`, `failApplicationDetail`,
- * `failUpcomingInterviews`), so specs can observe loading states and exercise
- * failure paths.
+ * fail (`failApplications`, `failCreateApplication`, `failUpdateApplication`,
+ * `failDeleteApplication`, `failApplicationDetail`, `failUpcomingInterviews`),
+ * so specs can observe loading states and exercise failure paths.
  */
 
 /** Subset of the API `JobApplication` contract used by the fixtures. */
@@ -227,6 +229,8 @@ export interface RecordedApplicationListRequest {
   /** Values of the repeated `statuses` query key. */
   statuses: string[]
   search: string
+  /** Whether soft-deleted applications were requested. */
+  showDeleted: boolean
 }
 
 /** A `GET /api/interviews/upcoming` request seen by the mock. */
@@ -253,6 +257,32 @@ export interface MockCreateApplicationPayload {
   jobLocation?: string
 }
 
+/** Body of `PATCH /api/applications/:id` as sent by the client. */
+export interface MockUpdateApplicationPayload {
+  companyName?: string
+  positionTitle?: string
+  status?: string
+  employmentType?: string
+  workplaceType?: string
+  jobLocation?: string
+  companyWebsite?: string
+  salaryMin?: number
+  salaryMax?: number
+  salaryCurrency?: string
+  notes?: string
+}
+
+/** A `PATCH /api/applications/:id` request seen by the mock. */
+export interface RecordedUpdateApplicationRequest {
+  id: string
+  payload: MockUpdateApplicationPayload
+}
+
+/** A `DELETE /api/applications/:id` request seen by the mock. */
+export interface RecordedDeleteApplicationRequest {
+  id: string
+}
+
 export class AppDataApiMock {
   private readonly page: Page
   private applicationsData: readonly MockApplication[]
@@ -260,6 +290,8 @@ export class AppDataApiMock {
   private latencyMs: number
   private applicationsFailure: AppDataFailure | null = null
   private createApplicationFailure: AppDataFailure | null = null
+  private updateApplicationFailure: AppDataFailure | null = null
+  private deleteApplicationFailure: AppDataFailure | null = null
   private applicationDetailFailure: AppDataFailure | null = null
   private upcomingInterviewsFailure: AppDataFailure | null = null
 
@@ -268,6 +300,12 @@ export class AppDataApiMock {
 
   /** Every create request the mock received, in order. */
   readonly createRequests: MockCreateApplicationPayload[] = []
+
+  /** Every update request the mock received, in order. */
+  readonly updateRequests: RecordedUpdateApplicationRequest[] = []
+
+  /** Every delete request the mock received, in order. */
+  readonly deleteRequests: RecordedDeleteApplicationRequest[] = []
 
   /** Every upcoming-interviews request the mock served, in order. */
   readonly upcomingInterviewRequests: RecordedUpcomingInterviewsRequest[] = []
@@ -342,6 +380,16 @@ export class AppDataApiMock {
     this.createApplicationFailure = failure
   }
 
+  /** Makes every `PATCH /api/applications/:id` request fail. */
+  failUpdateApplication(failure: AppDataFailure): void {
+    this.updateApplicationFailure = failure
+  }
+
+  /** Makes every `DELETE /api/applications/:id` request fail. */
+  failDeleteApplication(failure: AppDataFailure): void {
+    this.deleteApplicationFailure = failure
+  }
+
   /** Makes every `/api/applications/:id` request fail. */
   failApplicationDetail(failure: AppDataFailure): void {
     this.applicationDetailFailure = failure
@@ -356,6 +404,8 @@ export class AppDataApiMock {
   clearFailures(): void {
     this.applicationsFailure = null
     this.createApplicationFailure = null
+    this.updateApplicationFailure = null
+    this.deleteApplicationFailure = null
     this.applicationDetailFailure = null
     this.upcomingInterviewsFailure = null
   }
@@ -367,6 +417,16 @@ export class AppDataApiMock {
 
     if (method === 'POST') {
       await this.handleCreate(route)
+      return
+    }
+
+    if (method === 'PATCH') {
+      await this.handleUpdate(route, segments)
+      return
+    }
+
+    if (method === 'DELETE') {
+      await this.handleDelete(route, segments)
       return
     }
 
@@ -423,10 +483,11 @@ export class AppDataApiMock {
     // `/api/applications` (list + count, used by the dashboard tiles)
     const statuses = url.searchParams.getAll('statuses')
     const search = url.searchParams.get('search')?.toLowerCase() ?? ''
+    const showDeleted = url.searchParams.get('showDeleted') === 'true'
     const page = Number(url.searchParams.get('page') ?? 1)
     const limit = Number(url.searchParams.get('limit') ?? 10)
 
-    this.applicationListRequests.push({ page, limit, statuses, search })
+    this.applicationListRequests.push({ page, limit, statuses, search, showDeleted })
 
     if (this.applicationsFailure) {
       await this.respondWithFailure(route, this.applicationsFailure)
@@ -440,8 +501,10 @@ export class AppDataApiMock {
         search.length === 0 ||
         application.companyName.toLowerCase().includes(search) ||
         application.positionTitle.toLowerCase().includes(search)
+      // Mirrors the API: deleted rows are hidden unless `showDeleted` is set.
+      const matchesVisibility = showDeleted || application.deletedAt === null
 
-      return matchesStatus && matchesSearch
+      return matchesStatus && matchesSearch && matchesVisibility
     })
 
     const start = Math.max(page - 1, 0) * limit
@@ -487,6 +550,96 @@ export class AppDataApiMock {
     this.applicationsData = [...this.applicationsData, created]
 
     await fulfillEnvelope(route, created, 201)
+  }
+
+  /**
+   * Handles `PATCH /api/applications/:id`.
+   *
+   * The payload is recorded before the (optional) failure is injected. On
+   * success the seeded application is replaced so the list reflects the edit.
+   */
+  private async handleUpdate(route: Route, segments: string[]): Promise<void> {
+    if (segments.length !== 3) {
+      await fulfillApiError(route, 404, 'Application not found')
+      return
+    }
+
+    const id = segments[2]
+    const payload = readJsonBody<MockUpdateApplicationPayload>(route)
+    this.updateRequests.push({ id, payload })
+
+    await this.wait()
+
+    if (this.updateApplicationFailure) {
+      await this.respondWithFailure(route, this.updateApplicationFailure)
+      return
+    }
+
+    const existing = this.applicationsData.find((app) => app.id === id)
+    if (!existing) {
+      await fulfillApiError(route, 404, 'Application not found')
+      return
+    }
+
+    const now = new Date().toISOString()
+    const updated: MockApplication = {
+      ...existing,
+      companyName: payload.companyName ?? existing.companyName,
+      positionTitle: payload.positionTitle ?? existing.positionTitle,
+      status: payload.status ?? existing.status,
+      employmentType: payload.employmentType ?? existing.employmentType,
+      workplaceType: payload.workplaceType ?? existing.workplaceType,
+      jobLocation: payload.jobLocation ?? existing.jobLocation,
+      updatedAt: now,
+    }
+
+    this.applicationsData = this.applicationsData.map((app) =>
+      app.id === id ? updated : app,
+    )
+
+    await fulfillEnvelope(route, updated, 200)
+  }
+
+  /**
+   * Handles `DELETE /api/applications/:id` (soft delete).
+   *
+   * The id is recorded before the (optional) failure. On success `deletedAt`
+   * is set, so the record disappears from the default (non-deleted) list.
+   */
+  private async handleDelete(route: Route, segments: string[]): Promise<void> {
+    if (segments.length !== 3) {
+      await fulfillApiError(route, 404, 'Application not found')
+      return
+    }
+
+    const id = segments[2]
+    this.deleteRequests.push({ id })
+
+    await this.wait()
+
+    if (this.deleteApplicationFailure) {
+      await this.respondWithFailure(route, this.deleteApplicationFailure)
+      return
+    }
+
+    const existing = this.applicationsData.find((app) => app.id === id)
+    if (!existing) {
+      await fulfillApiError(route, 404, 'Application not found')
+      return
+    }
+
+    const now = new Date().toISOString()
+    const deleted: MockApplication = {
+      ...existing,
+      deletedAt: now,
+      updatedAt: now,
+    }
+
+    this.applicationsData = this.applicationsData.map((app) =>
+      app.id === id ? deleted : app,
+    )
+
+    await fulfillEnvelope(route, deleted, 200)
   }
 
   private async handleInterviews(route: Route): Promise<void> {
