@@ -1,8 +1,8 @@
-import {
-  UserSettingsService,
-  type UpdateUserSettingsPayload,
-  type UserSettings
-} from "@/features/app/features/settings/services/user-settings.service";
+import { UserSettingsService } from "@/features/app/features/settings/services/user-settings.service";
+import type {
+  UpdateUserSettingsPayload,
+  UserSettings
+} from "@/features/app/features/settings/types";
 import { api } from "@/lib/api.library";
 
 jest.mock("@/lib/api.library", () => ({

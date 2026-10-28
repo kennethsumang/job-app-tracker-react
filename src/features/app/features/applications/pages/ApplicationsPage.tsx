@@ -253,14 +253,14 @@ export function ApplicationsPage() {
       )}
 
       <CreateApplicationFormDialog
-        key={createSession}
+        key={`create-${createSession}`}
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onSubmit={handleCreateSubmit}
       />
 
       <ApplicationFormDialog
-        key={formSession}
+        key={`edit-${formSession}`}
         open={formOpen}
         existing={editingApp}
         onClose={handleFormClose}

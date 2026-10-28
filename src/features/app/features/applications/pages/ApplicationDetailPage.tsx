@@ -277,7 +277,7 @@ export function ApplicationDetailPage() {
       {/* Edit dialog */}
       {application && (
         <ApplicationFormDialog
-          key={formSession}
+          key={`edit-${formSession}`}
           open={formOpen}
           existing={application}
           onClose={() => setFormOpen(false)}
@@ -288,7 +288,7 @@ export function ApplicationDetailPage() {
       {/* Status change dialog */}
       {application && (
         <StatusChangeDialog
-          key={statusSession}
+          key={`status-${statusSession}`}
           open={statusOpen}
           currentStatus={application.status}
           onClose={() => setStatusOpen(false)}
