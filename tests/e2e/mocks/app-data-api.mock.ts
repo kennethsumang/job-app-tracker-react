@@ -20,8 +20,9 @@ import {
  * - `POST /api/applications`                → create (recorded, appended to the seed)
  * - `GET  /api/applications/:id`            → single application
  * - `GET  /api/applications/:id/interviews` → interviews of an application
- * - `GET  /api/applications/:id/status-changelogs` → status history of an application
+ * - `GET  /api/applications/:id/status-changelogs` → empty status history
  * - `GET  /api/interviews/upcoming`         → next interviews (`from`, `top`)
+ * - `GET  /api/interviews`                  → calendar range (`from`, `to`, `timezone`)
  *
  * Responses can be delayed (`setLatency`) and every endpoint can be made to
  * fail (`failApplications`, `failCreateApplication`, `failApplicationDetail`,
@@ -39,6 +40,7 @@ export interface MockApplication {
   employmentType: string | null
   workplaceType: string | null
   jobLocation: string | null
+  appliedAt?: string | null
   createdAt: string
   updatedAt: string
   deletedAt: string | null
@@ -183,9 +185,32 @@ export function buildApplication(
     employmentType: 'FULL_TIME',
     workplaceType: 'REMOTE',
     jobLocation: 'Remote',
+    appliedAt: null,
     createdAt: CREATED_AT,
     updatedAt: CREATED_AT,
     deletedAt: null,
+    ...overrides,
+  }
+}
+
+/**
+ * Builds an interview on top of the fixture defaults.
+ *
+ * @param overrides - Fields to replace; `id` is required.
+ * @returns A complete `MockInterview`.
+ */
+export function buildInterview(
+  overrides: Partial<MockInterview> & Pick<MockInterview, 'id'>,
+): MockInterview {
+  return {
+    applicationId: 'app_e2e_2',
+    type: 'TECHNICAL',
+    scheduledAt: null,
+    timezone: 'UTC',
+    location: null,
+    notes: null,
+    createdAt: CREATED_AT,
+    updatedAt: CREATED_AT,
     ...overrides,
   }
 }
@@ -208,6 +233,13 @@ export interface RecordedApplicationListRequest {
 export interface RecordedUpcomingInterviewsRequest {
   from: string
   top: number
+  timezone: string
+}
+
+/** A `GET /api/interviews` request seen by the mock. */
+export interface RecordedInterviewsRangeRequest {
+  from: string
+  to: string
   timezone: string
 }
 
@@ -239,6 +271,9 @@ export class AppDataApiMock {
 
   /** Every upcoming-interviews request the mock served, in order. */
   readonly upcomingInterviewRequests: RecordedUpcomingInterviewsRequest[] = []
+
+  /** Every calendar-range interviews request the mock served, in order. */
+  readonly interviewRangeRequests: RecordedInterviewsRangeRequest[] = []
 
   constructor(page: Page, options: AppDataApiMockOptions = {}) {
     this.page = page
@@ -284,6 +319,11 @@ export class AppDataApiMock {
 
   /** Replaces the seeded interviews; pass `[]` to hide the dashboard card. */
   setUpcomingInterviews(interviews: readonly MockInterview[]): void {
+    this.interviewsData = interviews
+  }
+
+  /** Replaces the seeded interviews used by calendar ranges. */
+  setInterviews(interviews: readonly MockInterview[]): void {
     this.interviewsData = interviews
   }
 
@@ -484,8 +524,32 @@ export class AppDataApiMock {
       return
     }
 
-    // Any other interviews read (e.g. a calendar range) has no seeded data.
-    await fulfillEnvelope(route, [])
+    // `GET /api/interviews` — the calendar's visible month range.
+    const from = url.searchParams.get('from') ?? ''
+    const to = url.searchParams.get('to') ?? ''
+    const timezone = url.searchParams.get('timezone') ?? ''
+
+    this.interviewRangeRequests.push({ from, to, timezone })
+
+    const fromTime = Date.parse(from)
+    const toTime = Date.parse(to)
+    const inRange = this.interviewsData
+      .filter(
+        (
+          interview,
+        ): interview is MockInterview & { scheduledAt: string } =>
+          interview.scheduledAt !== null,
+      )
+      .filter((interview) => {
+        const scheduledAt = Date.parse(interview.scheduledAt)
+        return scheduledAt >= fromTime && scheduledAt < toTime
+      })
+      .sort(
+        (left, right) =>
+          Date.parse(left.scheduledAt) - Date.parse(right.scheduledAt),
+      )
+
+    await fulfillEnvelope(route, inRange)
   }
 
   private async respondWithFailure(

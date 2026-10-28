@@ -1,4 +1,21 @@
 {
   "title": "Calendario",
-  "empty": "Todavía no hay eventos. Añade el primero para empezar a seguir su progreso."
+  "loading": "Cargando…",
+  "unknown": "Desconocido",
+  "eventTypes": {
+    "applied": "Enviada",
+    "interview": "Entrevista"
+  },
+  "types": {
+    "SCREENING": "Cribado",
+    "PHONE": "Teléfono",
+    "TECHNICAL": "Técnica",
+    "FINAL": "Ronda final",
+    "HR": "RR. HH.",
+    "OTHER": "Otra"
+  },
+  "dialog": {
+    "empty": "No hay eventos este día.",
+    "interviewPrimary": "Entrevista de {{type}}"
+  }
 }

@@ -44,6 +44,7 @@ tests/e2e/
 │   ├── applications-list.page.ts
 │   ├── application-detail.page.ts
 │   ├── add-application-dialog.page.ts
+│   ├── calendar.page.ts
 │   └── register.page.ts
 ├── specs/
 │   ├── auth/
@@ -56,10 +57,12 @@ tests/e2e/
 │   │   │   ├── register-validation.spec.ts  # client-side validation
 │   │   │   └── register-errors.spec.ts      # API failure mapping
 │   │   └── session-guard.spec.ts         # guard, bootstrap, sign-out
-│   └── dashboard/
-│       ├── dashboard.spec.ts             # widgets, counters, navigation, sign-out
-│       ├── dashboard-errors.spec.ts      # failing counters/interviews/list
-│       └── add-application.spec.ts       # Add Application dialog
+│   ├── dashboard/
+│   │   ├── dashboard.spec.ts             # widgets, counters, navigation, sign-out
+│   │   ├── dashboard-errors.spec.ts      # failing counters/interviews/list
+│   │   └── add-application.spec.ts       # Add Application dialog
+│   └── calendar/
+│       └── calendar.spec.ts              # month grid, events, day dialog
 ```
 
 ## Conventions
@@ -69,9 +72,9 @@ tests/e2e/
   Selectors are role/label/id based (the app ships no `data-testid`s); inputs use
   their ids because MUI appends the required asterisk to the visible label.
 - **Fixtures over helpers** — `authApi`, `appApi`, `loginPage`, `registerPage`,
-  `dashboardPage`, `applicationsListPage` and `applicationDetailPage` are
-  injected. `authApi`/`appApi` are `auto`, so a spec can never reach the real
-  backend by accident.
+  `dashboardPage`, `applicationsListPage`, `applicationDetailPage` and
+  `calendarPage` are injected. `authApi`/`appApi` are `auto`, so a spec can
+  never reach the real backend by accident.
 - **No arbitrary sleeps** — assert loading states with `expect(locator)` and use
   the mock's `latencyMs` options to make them observable.
 - **Deterministic data** — accounts and applications live in
@@ -103,11 +106,13 @@ policy, validation rejection, 5xx and network aborts. Specs assert the
 | `GET /api/applications/:id`              | single application, `404` when the id is unknown                  |
 | `GET /api/applications/:id/interviews`   | interviews of that application                                    |
 | `GET /api/interviews/upcoming`           | interviews at/after `from`, sorted, limited by `top`              |
+| `GET /api/interviews`                    | interviews inside `[from, to)`, sorted                           |
 
 It also offers the knobs the failure/loading specs need:
 
-- `setApplications()` / `setUpcomingInterviews()` replace the seed (the
-  dashboard's counters are derived from `dashboardCounts`, never hardcoded).
+- `setApplications()` / `setInterviews()` (and `setUpcomingInterviews()`)
+  replace the seed (the dashboard's counters are derived from
+  `dashboardCounts`, never hardcoded).
 - `setLatency()` delays every response so loading placeholders stay observable.
 - `failApplications()`, `failCreateApplication()`, `failApplicationDetail()` and
   `failUpcomingInterviews()` inject a `{ status, message }` failure or

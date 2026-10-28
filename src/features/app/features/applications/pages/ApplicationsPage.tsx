@@ -10,6 +10,7 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { ApplicationFilters } from '../components/ApplicationFilters'
 import { ApplicationFormDialog } from '../components/ApplicationFormDialog'
 import { ApplicationsList } from '../components/ApplicationsList'
+import { CreateApplicationFormDialog } from '../components/CreateApplicationFormDialog'
 import { DeleteConfirmationDialog } from '../components/DeleteConfirmationDialog'
 import { isJobApplicationStatus } from '../constants'
 import {
@@ -72,6 +73,9 @@ export function ApplicationsPage() {
   const filters = useApplicationFiltersStore((state) => state.filters)
   const setFilters = useApplicationFiltersStore((state) => state.setFilters)
 
+  const [createOpen, setCreateOpen] = useState(false)
+  // Incremented per opening so the create dialog remounts with fresh state.
+  const [createSession, setCreateSession] = useState(0)
   const [formOpen, setFormOpen] = useState(false)
   // Incremented per opening so the form dialog remounts with fresh state.
   const [formSession, setFormSession] = useState(0)
@@ -118,9 +122,19 @@ export function ApplicationsPage() {
   }
 
   function handleCreate() {
-    setEditingApp(undefined)
-    setFormSession((session) => session + 1)
-    setFormOpen(true)
+    setCreateSession((session) => session + 1)
+    setCreateOpen(true)
+  }
+
+  async function handleCreateSubmit(payload: CreateApplicationPayload) {
+    try {
+      await createMutation.mutateAsync(payload)
+      setSnackbar(t('messages.created'))
+    } catch (error) {
+      setSnackbar(t('messages.createFailed'))
+      // Rethrow so the dialog stays open with the entered values.
+      throw error
+    }
   }
 
   function handleEdit(application: JobApplication) {
@@ -136,23 +150,14 @@ export function ApplicationsPage() {
   }
 
   async function handleFormSubmit(payload: CreateApplicationPayload) {
-    if (editingApp) {
-      try {
-        await updateMutation.mutateAsync({ id: editingApp.id, payload })
-        setSnackbar(t('messages.updated'))
-      } catch (error) {
-        setSnackbar(t('messages.updateFailed'))
-        // Rethrow so the dialog stays open with the entered values.
-        throw error
-      }
-      return
-    }
+    if (!editingApp) return
 
     try {
-      await createMutation.mutateAsync(payload)
-      setSnackbar(t('messages.created'))
+      await updateMutation.mutateAsync({ id: editingApp.id, payload })
+      setSnackbar(t('messages.updated'))
     } catch (error) {
-      setSnackbar(t('messages.createFailed'))
+      setSnackbar(t('messages.updateFailed'))
+      // Rethrow so the dialog stays open with the entered values.
       throw error
     }
   }
@@ -246,6 +251,13 @@ export function ApplicationsPage() {
           </Fab>
         </Tooltip>
       )}
+
+      <CreateApplicationFormDialog
+        key={createSession}
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSubmit={handleCreateSubmit}
+      />
 
       <ApplicationFormDialog
         key={formSession}

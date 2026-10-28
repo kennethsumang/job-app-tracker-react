@@ -1,1 +1,6 @@
 export { calendarPaths, calendarRoutes } from './routes'
+export { CalendarView } from './components/CalendarView'
+export { buildCalendarEvents } from './utils/calendar-events'
+export type { CalendarEventLabels } from './utils/calendar-events'
+export { APPLIED_EVENT_COLOR, INTERVIEW_EVENT_COLOR } from './types'
+export type { CalendarEventExtendedProps, CalendarEventKind } from './types'

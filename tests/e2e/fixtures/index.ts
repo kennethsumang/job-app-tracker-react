@@ -5,6 +5,7 @@ import { AuthApiMock } from '../mocks/auth-api.mock'
 import { ApplicationDetailPage } from '../pages/application-detail.page'
 import { AddApplicationDialogPage } from '../pages/add-application-dialog.page'
 import { ApplicationsListPage } from '../pages/applications-list.page'
+import { CalendarPage } from '../pages/calendar.page'
 import { DashboardPage } from '../pages/dashboard.page'
 import { LoginPage } from '../pages/login.page'
 import { RegisterPage } from '../pages/register.page'
@@ -41,6 +42,8 @@ export interface Fixtures {
   settingsPage: SettingsPage
   /** "Add Application" dialog opened from the dashboard. */
   addApplicationDialog: AddApplicationDialogPage
+  /** Authenticated calendar page object. */
+  calendarPage: CalendarPage
 }
 
 export const test = base.extend<Fixtures>({
@@ -97,6 +100,10 @@ export const test = base.extend<Fixtures>({
 
   addApplicationDialog: async ({ page }, provide) => {
     await provide(new AddApplicationDialogPage(page))
+  },
+
+  calendarPage: async ({ page }, provide) => {
+    await provide(new CalendarPage(page))
   },
 })
 

@@ -1,4 +1,21 @@
 {
   "title": "Calendar",
-  "empty": "No events yet. Add your first one to start tracking its progress."
+  "loading": "Loading…",
+  "unknown": "Unknown",
+  "eventTypes": {
+    "applied": "Applied",
+    "interview": "Interview"
+  },
+  "types": {
+    "SCREENING": "Screening",
+    "PHONE": "Phone",
+    "TECHNICAL": "Technical",
+    "FINAL": "Final round",
+    "HR": "HR",
+    "OTHER": "Other"
+  },
+  "dialog": {
+    "empty": "No events on this day.",
+    "interviewPrimary": "{{type}} Interview"
+  }
 }

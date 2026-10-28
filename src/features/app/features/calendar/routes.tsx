@@ -3,12 +3,12 @@ import { APP_HOME_PATH } from '@/shared/config/routes'
 
 const calendarSegment = 'calendar'
 
-/** Route paths for the applications feature. */
+/** Route paths for the calendar feature. */
 export const calendarPaths = {
-  list: APP_HOME_PATH,
+  list: `${APP_HOME_PATH}/${calendarSegment}`,
 } as const
 
-/** Lazy route definitions for the applications feature. */
+/** Lazy route definitions for the calendar feature. */
 export const calendarRoutes: RouteObject[] = [
   {
     path: calendarSegment,
