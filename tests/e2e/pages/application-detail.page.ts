@@ -160,9 +160,9 @@ export class ApplicationDetailPage {
 
   /** Asserts every given note is visible. */
   async expectNotesVisible(contents: readonly string[]): Promise<void> {
-    for (const content of contents) {
-      await expect(this.note(content)).toBeVisible()
-    }
+    await Promise.all(
+      contents.map((content) => expect(this.note(content)).toBeVisible()),
+    )
   }
 
   /**
