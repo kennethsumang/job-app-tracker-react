@@ -14,6 +14,14 @@ export class ApplicationDetailPage {
   readonly deleteButton: Locator
   readonly addInterviewButton: Locator
   readonly addInterviewEmptyButton: Locator
+  /** Heading of the comment-style notes section. */
+  readonly notesHeading: Locator
+  /** "Add comment" action in the notes section header. */
+  readonly notesAddButton: Locator
+  /** Sort toggle: newest first. */
+  readonly sortNewestButton: Locator
+  /** Sort toggle: oldest first. */
+  readonly sortOldestButton: Locator
 
   constructor(page: Page) {
     this.page = page
@@ -38,6 +46,13 @@ export class ApplicationDetailPage {
       name: 'Add interview',
       exact: true,
     })
+    this.notesHeading = page.getByRole('heading', {
+      level: 6,
+      name: 'Comments',
+    })
+    this.notesAddButton = page.getByRole('button', { name: 'Add comment' })
+    this.sortNewestButton = page.getByRole('button', { name: 'Newest first' })
+    this.sortOldestButton = page.getByRole('button', { name: 'Oldest first' })
   }
 
   /** Navigates straight to the detail page of an application. */
@@ -117,5 +132,56 @@ export class ApplicationDetailPage {
     await expect(
       this.page.getByText('No interviews yet', { exact: true }),
     ).toBeVisible()
+  }
+
+  /** A note card identified by its content (each card is an `article`). */
+  noteCard(content: string): Locator {
+    return this.page.getByRole('article').filter({ hasText: content })
+  }
+
+  /** The content line of a single note card. */
+  note(content: string): Locator {
+    return this.noteCard(content).getByText(content, { exact: true })
+  }
+
+  /** Edit action scoped to the note with the given content. */
+  editNoteButton(content: string): Locator {
+    return this.noteCard(content).getByRole('button', {
+      name: 'Edit comment',
+    })
+  }
+
+  /** Delete action scoped to the note with the given content. */
+  deleteNoteButton(content: string): Locator {
+    return this.noteCard(content).getByRole('button', {
+      name: 'Delete comment',
+    })
+  }
+
+  /** Asserts every given note is visible. */
+  async expectNotesVisible(contents: readonly string[]): Promise<void> {
+    for (const content of contents) {
+      await expect(this.note(content)).toBeVisible()
+    }
+  }
+
+  /**
+   * Asserts the notes render in the given top-to-bottom order.
+   *
+   * Uses each card's vertical position because the list has no semantic
+   * ordered structure.
+   */
+  async expectNoteOrder(contents: readonly string[]): Promise<void> {
+    const positions = await Promise.all(
+      contents.map(async (content) => {
+        const box = await this.noteCard(content).boundingBox()
+        return { content, y: box?.y ?? Number.POSITIVE_INFINITY }
+      }),
+    )
+    const actual = [...positions]
+      .sort((left, right) => left.y - right.y)
+      .map((entry) => entry.content)
+
+    expect(actual).toEqual(contents)
   }
 }

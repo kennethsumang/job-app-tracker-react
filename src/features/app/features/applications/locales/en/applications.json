@@ -124,7 +124,13 @@
     "interviewUpdated": "Interview updated.",
     "interviewUpdateFailed": "Failed to update the interview.",
     "interviewDeleted": "Interview removed.",
-    "interviewDeleteFailed": "Failed to delete the interview."
+    "interviewDeleteFailed": "Failed to delete the interview.",
+    "noteCreated": "Comment added.",
+    "noteCreateFailed": "Failed to add the comment.",
+    "noteUpdated": "Comment updated.",
+    "noteUpdateFailed": "Failed to update the comment.",
+    "noteDeleted": "Comment removed.",
+    "noteDeleteFailed": "Failed to delete the comment."
   },
   "fab": {
     "label": "Add application",
@@ -187,6 +193,30 @@
       "scheduledAtRequired": "Scheduled date & time is required.",
       "cancel": "Cancel",
       "create": "Add interview",
+      "save": "Save changes"
+    }
+  },
+  "notes": {
+    "title": "Comments",
+    "add": "Add comment",
+    "addNote": "Add your first comment",
+    "loading": "Loading comments",
+    "loadError": "Could not load comments.",
+    "empty": "No comments yet",
+    "createdAt": "{{date}} ({{timezone}})",
+    "sortLabel": "Sort comments",
+    "sortNewestFirst": "Newest first",
+    "sortOldestFirst": "Oldest first",
+    "edit": "Edit comment",
+    "delete": "Delete comment",
+    "form": {
+      "createTitle": "Add comment",
+      "editTitle": "Edit comment",
+      "content": "Comment",
+      "contentPlaceholder": "Write a note about this application…",
+      "contentRequired": "Comment is required.",
+      "cancel": "Cancel",
+      "create": "Add comment",
       "save": "Save changes"
     }
   },

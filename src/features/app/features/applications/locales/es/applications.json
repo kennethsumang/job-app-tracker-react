@@ -124,7 +124,13 @@
     "interviewUpdated": "Entrevista actualizada.",
     "interviewUpdateFailed": "No se pudo actualizar la entrevista.",
     "interviewDeleted": "Entrevista eliminada.",
-    "interviewDeleteFailed": "No se pudo eliminar la entrevista."
+    "interviewDeleteFailed": "No se pudo eliminar la entrevista.",
+    "noteCreated": "Comentario añadido.",
+    "noteCreateFailed": "No se pudo añadir el comentario.",
+    "noteUpdated": "Comentario actualizado.",
+    "noteUpdateFailed": "No se pudo actualizar el comentario.",
+    "noteDeleted": "Comentario eliminado.",
+    "noteDeleteFailed": "No se pudo eliminar el comentario."
   },
   "fab": {
     "label": "Añadir aplicación",
@@ -187,6 +193,30 @@
       "scheduledAtRequired": "La fecha y hora son obligatorias.",
       "cancel": "Cancelar",
       "create": "Añadir entrevista",
+      "save": "Guardar cambios"
+    }
+  },
+  "notes": {
+    "title": "Comentarios",
+    "add": "Añadir comentario",
+    "addNote": "Añade tu primer comentario",
+    "loading": "Cargando comentarios",
+    "loadError": "No se pudieron cargar los comentarios.",
+    "empty": "Todavía no hay comentarios",
+    "createdAt": "{{date}} ({{timezone}})",
+    "sortLabel": "Ordenar comentarios",
+    "sortNewestFirst": "Más recientes primero",
+    "sortOldestFirst": "Más antiguos primero",
+    "edit": "Editar comentario",
+    "delete": "Eliminar comentario",
+    "form": {
+      "createTitle": "Añadir comentario",
+      "editTitle": "Editar comentario",
+      "content": "Comentario",
+      "contentPlaceholder": "Escribe una nota sobre esta aplicación…",
+      "contentRequired": "El comentario es obligatorio.",
+      "cancel": "Cancelar",
+      "create": "Añadir comentario",
       "save": "Guardar cambios"
     }
   },

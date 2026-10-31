@@ -26,6 +26,10 @@ import {
  * - `DELETE /api/applications/:id/interviews/:interviewId` → delete interview (204)
  * - `GET    /api/applications/:id`          → single application
  * - `GET    /api/applications/:id/interviews` → interviews of an application
+ * - `GET    /api/applications/:id/notes`    → comment-style notes (list)
+ * - `POST   /api/applications/:id/notes`    → create a note
+ * - `PATCH  /api/applications/:id/notes/:noteId` → update a note
+ * - `DELETE /api/applications/:id/notes/:noteId` → delete a note (204)
  * - `GET    /api/applications/:id/status-changelogs` → empty status history
  * - `GET    /api/interviews/upcoming`       → next interviews (`from`, `top`)
  * - `GET    /api/interviews`                → calendar range (`from`, `to`, `timezone`)
@@ -72,6 +76,15 @@ export interface MockInterview {
   timezone: string | null
   location: string | null
   notes: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+/** Subset of the API `ApplicationNote` contract used by the fixtures. */
+export interface MockApplicationNote {
+  id: string
+  applicationId: string
+  content: string
   createdAt: string
   updatedAt: string
 }
@@ -128,6 +141,7 @@ export const DEFAULT_APPLICATIONS: readonly MockApplication[] = [
 export interface AppDataApiMockOptions {
   applications?: readonly MockApplication[]
   interviews?: readonly MockInterview[]
+  notes?: readonly MockApplicationNote[]
   /** Artificial latency for every response, to observe loading states. */
   latencyMs?: number
 }
@@ -177,6 +191,34 @@ export const DEFAULT_UPCOMING_INTERVIEWS: readonly MockInterview[] = [
 ]
 
 /**
+ * Three notes on the Globex application (newest first), with distinct creation
+ * dates so specs can assert ascending/descending ordering.
+ */
+export const DEFAULT_NOTES: readonly MockApplicationNote[] = [
+  {
+    id: 'note_e2e_1',
+    applicationId: 'app_e2e_2',
+    content: 'Initial screening scheduled for next week.',
+    createdAt: '2025-02-01T09:00:00.000Z',
+    updatedAt: '2025-02-01T09:00:00.000Z',
+  },
+  {
+    id: 'note_e2e_2',
+    applicationId: 'app_e2e_2',
+    content: 'Recruiter asked for salary expectations.',
+    createdAt: '2025-06-01T12:00:00.000Z',
+    updatedAt: '2025-06-01T12:00:00.000Z',
+  },
+  {
+    id: 'note_e2e_3',
+    applicationId: 'app_e2e_2',
+    content: 'Prepare two system design examples.',
+    createdAt: '2025-10-01T18:30:00.000Z',
+    updatedAt: '2025-10-01T18:30:00.000Z',
+  },
+] as const
+
+/**
  * Builds an application on top of the fixture defaults.
  *
  * @param overrides - Fields to replace; `id` is required.
@@ -217,6 +259,24 @@ export function buildInterview(
     timezone: 'UTC',
     location: null,
     notes: null,
+    createdAt: CREATED_AT,
+    updatedAt: CREATED_AT,
+    ...overrides,
+  }
+}
+
+/**
+ * Builds an application note on top of the fixture defaults.
+ *
+ * @param overrides - Fields to replace; `id` is required.
+ * @returns A complete `MockApplicationNote`.
+ */
+export function buildNote(
+  overrides: Partial<MockApplicationNote> & Pick<MockApplicationNote, 'id'>,
+): MockApplicationNote {
+  return {
+    applicationId: 'app_e2e_2',
+    content: 'Note',
     createdAt: CREATED_AT,
     updatedAt: CREATED_AT,
     ...overrides,
@@ -329,10 +389,38 @@ export interface RecordedDeleteInterviewRequest {
   interviewId: string
 }
 
+/** Body of `POST /api/applications/:id/notes`. */
+export interface MockCreateNotePayload {
+  content: string
+}
+
+/** Body of `PATCH /api/applications/:id/notes/:noteId`. */
+export type MockUpdateNotePayload = Partial<MockCreateNotePayload>
+
+/** A create-note request seen by the mock. */
+export interface RecordedCreateNoteRequest {
+  applicationId: string
+  payload: MockCreateNotePayload
+}
+
+/** An update-note request seen by the mock. */
+export interface RecordedUpdateNoteRequest {
+  applicationId: string
+  noteId: string
+  payload: MockUpdateNotePayload
+}
+
+/** A delete-note request seen by the mock. */
+export interface RecordedDeleteNoteRequest {
+  applicationId: string
+  noteId: string
+}
+
 export class AppDataApiMock {
   private readonly page: Page
   private applicationsData: readonly MockApplication[]
   private interviewsData: readonly MockInterview[]
+  private notesData: readonly MockApplicationNote[]
   private latencyMs: number
   private applicationsFailure: AppDataFailure | null = null
   private createApplicationFailure: AppDataFailure | null = null
@@ -344,6 +432,10 @@ export class AppDataApiMock {
   private deleteInterviewFailure: AppDataFailure | null = null
   private applicationDetailFailure: AppDataFailure | null = null
   private upcomingInterviewsFailure: AppDataFailure | null = null
+  private notesFailure: AppDataFailure | null = null
+  private createNoteFailure: AppDataFailure | null = null
+  private updateNoteFailure: AppDataFailure | null = null
+  private deleteNoteFailure: AppDataFailure | null = null
 
   /** Every list/count request the mock served, in order. */
   readonly applicationListRequests: RecordedApplicationListRequest[] = []
@@ -375,10 +467,20 @@ export class AppDataApiMock {
   /** Every calendar-range interviews request the mock served, in order. */
   readonly interviewRangeRequests: RecordedInterviewsRangeRequest[] = []
 
+  /** Every create-note request the mock received, in order. */
+  readonly createNoteRequests: RecordedCreateNoteRequest[] = []
+
+  /** Every update-note request the mock received, in order. */
+  readonly updateNoteRequests: RecordedUpdateNoteRequest[] = []
+
+  /** Every delete-note request the mock received, in order. */
+  readonly deleteNoteRequests: RecordedDeleteNoteRequest[] = []
+
   constructor(page: Page, options: AppDataApiMockOptions = {}) {
     this.page = page
     this.applicationsData = options.applications ?? DEFAULT_APPLICATIONS
     this.interviewsData = options.interviews ?? DEFAULT_UPCOMING_INTERVIEWS
+    this.notesData = options.notes ?? DEFAULT_NOTES
     this.latencyMs = options.latencyMs ?? 0
   }
 
@@ -390,6 +492,11 @@ export class AppDataApiMock {
   /** Interviews currently seeded in the mock. */
   get interviews(): readonly MockInterview[] {
     return this.interviewsData
+  }
+
+  /** Application notes currently seeded in the mock. */
+  get notes(): readonly MockApplicationNote[] {
+    return this.notesData
   }
 
   /** Counters the UI should display for the seeded data. */
@@ -482,6 +589,31 @@ export class AppDataApiMock {
     this.upcomingInterviewsFailure = failure
   }
 
+  /** Replaces the seeded notes. Call before navigating. */
+  setNotes(notes: readonly MockApplicationNote[]): void {
+    this.notesData = notes
+  }
+
+  /** Makes every `GET /api/applications/:id/notes` request fail. */
+  failNotes(failure: AppDataFailure): void {
+    this.notesFailure = failure
+  }
+
+  /** Makes every `POST /api/applications/:id/notes` request fail. */
+  failCreateNote(failure: AppDataFailure): void {
+    this.createNoteFailure = failure
+  }
+
+  /** Makes every `PATCH /api/applications/:id/notes/:noteId` request fail. */
+  failUpdateNote(failure: AppDataFailure): void {
+    this.updateNoteFailure = failure
+  }
+
+  /** Makes every `DELETE /api/applications/:id/notes/:noteId` request fail. */
+  failDeleteNote(failure: AppDataFailure): void {
+    this.deleteNoteFailure = failure
+  }
+
   /** Clears every injected failure, letting the mock serve data again. */
   clearFailures(): void {
     this.applicationsFailure = null
@@ -494,12 +626,24 @@ export class AppDataApiMock {
     this.deleteInterviewFailure = null
     this.applicationDetailFailure = null
     this.upcomingInterviewsFailure = null
+    this.notesFailure = null
+    this.createNoteFailure = null
+    this.updateNoteFailure = null
+    this.deleteNoteFailure = null
   }
 
   private async handleApplications(route: Route): Promise<void> {
     const method = route.request().method()
     const url = new URL(route.request().url())
     const segments = url.pathname.split('/').filter(Boolean)
+
+    // `/api/applications/:id/notes` and `/api/applications/:id/notes/:noteId`.
+    // This must run before the generic POST branch below, which would
+    // otherwise treat a note creation as an application creation.
+    if (segments.length >= 4 && segments[3] === 'notes') {
+      await this.handleNotes(route, method, segments)
+      return
+    }
 
     if (method === 'POST') {
       if (segments.length === 4 && segments[3] === 'interviews') {
@@ -995,6 +1139,120 @@ export class AppDataApiMock {
       )
 
     await fulfillEnvelope(route, inRange)
+  }
+
+  /**
+   * Handles the application-note sub-resource.
+   *
+   * - `GET    /api/applications/:id/notes`            → list (not soft-deleted)
+   * - `POST   /api/applications/:id/notes`            → create (recorded)
+   * - `PATCH  /api/applications/:id/notes/:noteId`    → update
+   * - `DELETE /api/applications/:id/notes/:noteId`    → soft-delete
+   */
+  private async handleNotes(
+    route: Route,
+    method: string,
+    segments: string[],
+  ): Promise<void> {
+    const applicationId = segments[2]
+    const noteId = segments[4]
+
+    await this.wait()
+
+    // `/api/applications/:id/notes`
+    if (segments.length === 4) {
+      if (method === 'GET') {
+        if (this.notesFailure) {
+          await this.respondWithFailure(route, this.notesFailure)
+          return
+        }
+
+        const notes = this.notesData.filter(
+          (note) => note.applicationId === applicationId,
+        )
+        await fulfillEnvelope(route, notes)
+        return
+      }
+
+      if (method === 'POST') {
+        const payload = readJsonBody<MockCreateNotePayload>(route)
+        this.createNoteRequests.push({ applicationId, payload })
+
+        if (this.createNoteFailure) {
+          await this.respondWithFailure(route, this.createNoteFailure)
+          return
+        }
+
+        const now = new Date().toISOString()
+        const created: MockApplicationNote = {
+          id: `note_e2e_created_${this.createNoteRequests.length}`,
+          applicationId,
+          content: payload.content,
+          createdAt: now,
+          updatedAt: now,
+        }
+        this.notesData = [...this.notesData, created]
+        await fulfillEnvelope(route, created, 201)
+        return
+      }
+    }
+
+    // `/api/applications/:id/notes/:noteId`
+    if (segments.length === 5 && noteId) {
+      const existing = this.notesData.find(
+        (note) => note.id === noteId && note.applicationId === applicationId,
+      )
+
+      if (method === 'PATCH') {
+        const payload = readJsonBody<MockUpdateNotePayload>(route)
+        this.updateNoteRequests.push({ applicationId, noteId, payload })
+
+        if (this.updateNoteFailure) {
+          await this.respondWithFailure(route, this.updateNoteFailure)
+          return
+        }
+
+        if (!existing) {
+          await fulfillApiError(route, 404, 'Note not found')
+          return
+        }
+
+        const updated: MockApplicationNote = {
+          ...existing,
+          content: payload.content ?? existing.content,
+          updatedAt: new Date().toISOString(),
+        }
+        this.notesData = this.notesData.map((note) =>
+          note.id === noteId ? updated : note,
+        )
+        await fulfillEnvelope(route, updated)
+        return
+      }
+
+      if (method === 'DELETE') {
+        this.deleteNoteRequests.push({ applicationId, noteId })
+
+        if (this.deleteNoteFailure) {
+          await this.respondWithFailure(route, this.deleteNoteFailure)
+          return
+        }
+
+        if (!existing) {
+          await fulfillApiError(route, 404, 'Note not found')
+          return
+        }
+
+        this.notesData = this.notesData.filter((note) => note.id !== noteId)
+        await route.fulfill({ status: 204 })
+        return
+      }
+    }
+
+    await fulfillApiError(
+      route,
+      501,
+      `No notes mock registered for ${method} ${segments.join('/')}`,
+    )
   }
 
   private async respondWithFailure(

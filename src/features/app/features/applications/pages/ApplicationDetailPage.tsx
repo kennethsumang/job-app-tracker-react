@@ -20,6 +20,7 @@ import { ApplicationDetailNotes } from '../components/ApplicationDetailNotes'
 import { ApplicationFormDialog } from '../components/ApplicationFormDialog'
 import { DeleteConfirmationDialog } from '../components/DeleteConfirmationDialog'
 import { InterviewsSection } from '../components/InterviewsSection'
+import { NotesSection } from '../components/NotesSection'
 import { StatusChangeTimeline } from '../components/StatusChangeTimeline'
 import { StatusChangeDialog } from '../components/StatusChangeDialog'
 import { useApplication } from '../hooks/use-application-detail'
@@ -260,6 +261,11 @@ export function ApplicationDetailPage() {
           {application.notes?.trim() && (
             <ApplicationDetailNotes notes={application.notes} />
           )}
+          <NotesSection
+            applicationId={application.id}
+            canEdit={!isDeleted}
+            onSnackbar={setSnackbar}
+          />
           {isDeleted && (
             <Typography variant="body2" sx={{ color: 'warning.main' }}>
               {t('detail.deletedBanner')}
