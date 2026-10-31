@@ -25,7 +25,7 @@ interface NoteFormDialogProps {
 }
 
 /**
- * Create/edit dialog for a comment-style note.
+ * Create/edit dialog for a note.
  *
  * Mount it with a `key` per opening: the initial state is taken from the props
  * on mount.

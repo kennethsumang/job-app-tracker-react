@@ -44,8 +44,8 @@ interface NoteCardProps {
 }
 
 /**
- * Card summarising one comment-style note: its content, creation date in the
- * device timezone, and the edit/delete actions.
+ * Card summarising one note: its content, creation date in the device
+ * timezone, and the edit/delete actions.
  */
 function NoteCard({
   note,
@@ -139,8 +139,8 @@ interface NotesSectionProps {
 }
 
 /**
- * Comment-style notes of an application: sortable list, empty state and the
- * add/edit dialog.
+ * Notes of an application: sortable list, empty state and the add/edit
+ * dialog.
  */
 export function NotesSection({
   applicationId,

@@ -6,7 +6,7 @@ import { api } from '@/lib/api.library'
 // NestJS API (`X-Api-Version: 1`, cookie-session auth). They are co-located with
 // the service so it stays self-contained, following the interviews module.
 
-/** A note (comment) as returned by the API (dates are ISO strings). */
+/** A note as returned by the API (dates are ISO strings). */
 export interface ApplicationNote {
   id: string
   applicationId: string
@@ -25,7 +25,7 @@ export type UpdateNotePayload = Partial<CreateNotePayload>
 
 /**
  * NotesService
- * Service for reading and managing the comment-style notes attached to job
+ * Service for reading and managing the notes attached to job
  * applications. It is the single entry point for the notes endpoints and is
  * meant to be consumed by TanStack Query hooks.
  */

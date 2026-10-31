@@ -14,9 +14,9 @@ export class ApplicationDetailPage {
   readonly deleteButton: Locator
   readonly addInterviewButton: Locator
   readonly addInterviewEmptyButton: Locator
-  /** Heading of the comment-style notes section. */
+  /** Heading of the notes section. */
   readonly notesHeading: Locator
-  /** "Add comment" action in the notes section header. */
+  /** "Add note" action in the notes section header. */
   readonly notesAddButton: Locator
   /** Sort toggle: newest first. */
   readonly sortNewestButton: Locator
@@ -48,9 +48,9 @@ export class ApplicationDetailPage {
     })
     this.notesHeading = page.getByRole('heading', {
       level: 6,
-      name: 'Comments',
+      name: 'Notes',
     })
-    this.notesAddButton = page.getByRole('button', { name: 'Add comment' })
+    this.notesAddButton = page.getByRole('button', { name: 'Add note' })
     this.sortNewestButton = page.getByRole('button', { name: 'Newest first' })
     this.sortOldestButton = page.getByRole('button', { name: 'Oldest first' })
   }
@@ -147,14 +147,14 @@ export class ApplicationDetailPage {
   /** Edit action scoped to the note with the given content. */
   editNoteButton(content: string): Locator {
     return this.noteCard(content).getByRole('button', {
-      name: 'Edit comment',
+      name: 'Edit note',
     })
   }
 
   /** Delete action scoped to the note with the given content. */
   deleteNoteButton(content: string): Locator {
     return this.noteCard(content).getByRole('button', {
-      name: 'Delete comment',
+      name: 'Delete note',
     })
   }
 

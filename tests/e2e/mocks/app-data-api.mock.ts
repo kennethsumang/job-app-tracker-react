@@ -26,7 +26,7 @@ import {
  * - `DELETE /api/applications/:id/interviews/:interviewId` → delete interview (204)
  * - `GET    /api/applications/:id`          → single application
  * - `GET    /api/applications/:id/interviews` → interviews of an application
- * - `GET    /api/applications/:id/notes`    → comment-style notes (list)
+ * - `GET    /api/applications/:id/notes`    → notes (list)
  * - `POST   /api/applications/:id/notes`    → create a note
  * - `PATCH  /api/applications/:id/notes/:noteId` → update a note
  * - `DELETE /api/applications/:id/notes/:noteId` → delete a note (204)

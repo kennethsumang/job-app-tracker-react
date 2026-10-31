@@ -79,7 +79,7 @@ test.describe('Application notes', () => {
     const dialog = detail.page.getByRole('dialog')
     await expect(dialog).toBeVisible()
     await dialog.getByRole('textbox').fill('Send a thank-you email.')
-    await dialog.getByRole('button', { name: 'Add comment' }).click()
+    await dialog.getByRole('button', { name: 'Add note' }).click()
 
     // Assert — the dialog closes and the new note is first (newest)
     await expect(dialog).toBeHidden()
@@ -154,7 +154,7 @@ test.describe('Application notes', () => {
 
     // Assert
     await expect(
-      detail.page.getByText('Could not load comments.', { exact: true }),
+      detail.page.getByText('Could not load notes.', { exact: true }),
     ).toBeVisible()
     await expect(detail.noteCard(NEWEST_FIRST[0])).toHaveCount(0)
   })
@@ -172,14 +172,14 @@ test.describe('Application notes', () => {
     await detail.notesAddButton.click()
     const dialog = detail.page.getByRole('dialog')
     await dialog.getByRole('textbox').fill(content)
-    await dialog.getByRole('button', { name: 'Add comment' }).click()
+    await dialog.getByRole('button', { name: 'Add note' }).click()
 
     // Assert — the dialog stays open with the entered value
     await expect(dialog).toBeVisible()
     await expect(dialog.getByRole('textbox')).toHaveValue(content)
     // Assert — the page surfaces the failure (snackbar lives outside the dialog)
     await expect(
-      detail.page.getByText('Failed to add the comment.', { exact: true }),
+      detail.page.getByText('Failed to add the note.', { exact: true }),
     ).toBeVisible()
     expect(appApi.createNoteRequests).toHaveLength(1)
   })
@@ -199,7 +199,7 @@ test.describe('Application notes', () => {
     // Assert — the note is still there and the failure is surfaced
     await detail.expectNotesVisible([target])
     await expect(
-      detail.page.getByText('Failed to delete the comment.', { exact: true }),
+      detail.page.getByText('Failed to delete the note.', { exact: true }),
     ).toBeVisible()
     expect(appApi.deleteNoteRequests).toHaveLength(1)
   })
@@ -216,10 +216,10 @@ test.describe('Application notes', () => {
 
     // Assert
     await expect(
-      detail.page.getByText('No comments yet', { exact: true }),
+      detail.page.getByText('No notes yet', { exact: true }),
     ).toBeVisible()
     await expect(
-      detail.page.getByRole('button', { name: 'Add your first comment' }),
+      detail.page.getByRole('button', { name: 'Add your first note' }),
     ).toBeVisible()
   })
 })
