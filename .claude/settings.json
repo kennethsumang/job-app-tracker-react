@@ -1,0 +1,6 @@
+{
+  "enabledPlugins": {
+    "atlassian-mcp@anthropic-plugin-directory": true,
+    "context7@anthropic-plugin-directory": true
+  }
+}
